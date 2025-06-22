@@ -1,0 +1,21 @@
+Loaded 20 messages from file system.
+Loaded bidding data for 4 users.
+-----------------------------------------------------
+Socket.IO server running on http://localhost:3008
+Chat Rules Enabled:
+- Character limit: 42 characters
+- Rate limiting: 10 messages in 20 seconds
+- Link blocking: enabled
+- Profanity filtering: enabled
+-----------------------------------------------------
+Client connected: 4Q_Y7MBll0oZj3QgAAAB
+[Heartbeat] Active connections: 1
+[Heartbeat] Active connections: 1
+[Heartbeat] Active connections: 1
+[Heartbeat] Active connections: 1
+[Heartbeat] Active connections: 1
+[Heartbeat] Active connections: 1
+[Heartbeat] Active connections: 1
+[Heartbeat] Active connections: 1
+[Heartbeat] Active connections: 1
+[Heartbeat] Active connections: 1
