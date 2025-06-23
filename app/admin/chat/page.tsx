@@ -1,5 +1,5 @@
 import { AdminLayout } from "@/components/admin-layout"
-import { ChatHistory } from "@/components/chat-history"
+import { ChatManagement } from "@/components/chat-management"
 
 export default function AdminChatPage() {
   return (
@@ -8,10 +8,10 @@ export default function AdminChatPage() {
         <div>
           <h1 className="text-3xl font-bold">Chat Management</h1>
           <p className="text-muted-foreground">
-            View and manage chat messages across the platform
+            View and manage chat messages across the platform. Messages are organized by date.
           </p>
         </div>
-        <ChatHistory />
+        <ChatManagement />
       </div>
     </AdminLayout>
   )

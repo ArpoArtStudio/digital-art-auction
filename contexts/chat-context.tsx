@@ -25,7 +25,7 @@ interface ChatContextType {
   sendMessage: (text: string) => void
   deleteMessage: (messageId: string) => void
   muteUser: (walletAddress: string, duration: number) => void
-  exportChatHistory: () => void
+  exportChatHistory: (specificMessages?: ChatMessage[], filename?: string) => void
   unreadCount: number
   isConnected: boolean
   chatUsers: Set<string>
@@ -206,14 +206,17 @@ export function ChatProvider({ children }: ChatProviderProps) {
     })
   }
 
-  const exportChatHistory = () => {
-    if (!socket || !walletConnected || !isAdmin) return
+  const exportChatHistory = (specificMessages?: ChatMessage[], filename?: string) => {
+    if (!walletConnected) return
+    
+    // Use passed messages or all messages
+    const messagesToExport = specificMessages || messages
     
     // Create CSV from messages
-    let csv = 'Wallet Address,Display Name,Message,Timestamp,Is Admin\n'
+    let csv = 'Wallet Address,Display Name,Message,Timestamp,Is Admin,Level\n'
     
-    messages.forEach((msg) => {
-      csv += `${msg.walletAddress},${msg.displayName},"${msg.text.replace(/"/g, '""')}",${msg.timestamp},${msg.isAdmin}\n`
+    messagesToExport.forEach((msg) => {
+      csv += `${msg.walletAddress},${msg.displayName},"${msg.text.replace(/"/g, '""')}",${msg.timestamp},${msg.isAdmin},${msg.level || 'N/A'}\n`
     })
     
     // Create download link
@@ -222,7 +225,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
     const a = document.createElement('a')
     a.setAttribute('hidden', '')
     a.setAttribute('href', url)
-    a.setAttribute('download', `chat-history-${new Date().toISOString().split('T')[0]}.csv`)
+    a.setAttribute('download', filename || `chat-history-${new Date().toISOString().split('T')[0]}.csv`)
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)

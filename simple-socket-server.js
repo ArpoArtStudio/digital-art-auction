@@ -46,6 +46,33 @@ if (!fs.existsSync(messagesDir)) {
 const messagesPath = path.join(messagesDir, 'chat_messages.json');
 const biddingDataPath = path.join(messagesDir, 'bidding_data.json');
 
+// Message retention period in days
+const MESSAGE_RETENTION_PERIOD_DAYS = 7;
+
+// Function to clean up expired messages (older than 7 days)
+function cleanupExpiredMessages() {
+  const now = new Date();
+  const cutoffDate = new Date(now.getTime() - (MESSAGE_RETENTION_PERIOD_DAYS * 24 * 60 * 60 * 1000));
+  
+  console.log(`Cleaning up messages older than ${MESSAGE_RETENTION_PERIOD_DAYS} days (before ${cutoffDate.toISOString()})`);
+  
+  // Filter out messages older than the cutoff date
+  const originalCount = chatMessages.length;
+  chatMessages = chatMessages.filter(message => {
+    const messageDate = new Date(message.timestamp);
+    return messageDate >= cutoffDate;
+  });
+  
+  const removedCount = originalCount - chatMessages.length;
+  if (removedCount > 0) {
+    console.log(`Removed ${removedCount} expired messages`);
+    // Save updated messages to disk
+    fs.writeFileSync(messagesPath, JSON.stringify(chatMessages, null, 2));
+  } else {
+    console.log('No expired messages found');
+  }
+}
+
 // Load existing messages or create an empty array
 let chatMessages = [];
 try {
@@ -405,6 +432,17 @@ io.on('connection', (socket) => {
     console.log('Client disconnected:', socket.id);
   });
 });
+
+// Run message cleanup on server start
+console.log('Running initial message cleanup check...');
+cleanupExpiredMessages();
+
+// Schedule regular message cleanup (run once per day)
+const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
+setInterval(() => {
+  console.log('Running scheduled message cleanup...');
+  cleanupExpiredMessages();
+}, CLEANUP_INTERVAL_MS);
 
 // Start server with improved error handling
 const PORT = process.env.PORT || 3008;
