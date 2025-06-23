@@ -20,6 +20,11 @@ export interface EscrowService {
   getUserActiveBids: (bidder: string) => Promise<UserBidInfo[]>
   validateWalletHasFunds: (wallet: string, amount: string) => Promise<boolean>
   getSignedBidCommitment: (wallet: string, auctionId: string, amount: string) => Promise<SignedBidCommitment | null>
+  
+  // Add missing methods
+  updateBidStatus: (auctionId: string, bidStatus: any, paymentStatus: any) => Promise<boolean>
+  getUserBid: (walletAddress: string, auctionId: string) => Promise<any | null>
+  getUserWonAuctions: (walletAddress: string) => Promise<UserBidInfo[]>
 }
 
 export interface UserBidInfo {
@@ -142,5 +147,37 @@ export const escrowService: EscrowService = {
       signature: "0x123456789abcdef...",
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
     }
+  },
+  
+  // Implement missing methods
+  updateBidStatus: async (auctionId: string, bidStatus: any, paymentStatus: any) => {
+    console.log(`Updating bid status for auction ${auctionId} to ${bidStatus}, payment status ${paymentStatus}`)
+    return true
+  },
+  
+  getUserBid: async (walletAddress: string, auctionId: string) => {
+    console.log(`Getting bid for ${walletAddress} on auction ${auctionId}`)
+    // Mock data
+    return {
+      auctionId: auctionId,
+      walletAddress: walletAddress,
+      amount: "1.5",
+      status: BidEscrowStatus.BidLocked,
+      paymentStatus: "pending"
+    }
+  },
+  
+  getUserWonAuctions: async (walletAddress: string) => {
+    console.log(`Getting won auctions for ${walletAddress}`)
+    // Mock data
+    return [
+      {
+        auctionId: "auction-789",
+        artworkName: "Digital Paradise",
+        bidAmount: "3.2",
+        timestamp: new Date(),
+        status: BidEscrowStatus.AuctionEnded
+      }
+    ]
   },
 }

@@ -37,28 +37,6 @@ export enum PaymentStatus {
   Failed = "failed"
 }
 
-// Define bid status for tracking
-export enum BidStatus {
-  Pending = "pending",
-  Active = "active",
-  Winning = "winning",
-  Outbid = "outbid",
-  Won = "won",
-  Lost = "lost",
-  Canceled = "canceled",
-  Failed = "failed"
-}
-
-// Define payment status for tracking
-export enum PaymentStatus {
-  NotRequired = "not_required",
-  Pending = "pending",
-  Completed = "completed",
-  Refunded = "refunded",
-  Expired = "expired",
-  Failed = "failed"
-}
-
 // Interface for bidding data
 interface UserBiddingData {
   walletAddress: string;
@@ -488,7 +466,28 @@ Timestamp: ${Date.now()}
     setMinBidIncrementPercentage,
     requestWalletSignature,
     getUserActiveBids,
-    getUserWonAuctions,
+    getUserWonAuctions: async () => {
+      if (!isConnected) {
+        return [];
+      }
+      
+      try {
+        const wonAuctions = await escrowService.getUserWonAuctions(walletAddress);
+        // Convert UserBidInfo to UserBid
+        return wonAuctions.map(auction => ({
+          auctionId: auction.auctionId,
+          tokenId: auction.auctionId,
+          amount: parseFloat(auction.bidAmount),
+          depositAmount: 0.01,
+          timestamp: auction.timestamp.getTime(),
+          status: BidStatus.Won,
+          paymentStatus: PaymentStatus.Completed
+        }));
+      } catch (error) {
+        console.error("Error fetching won auctions:", error);
+        return [];
+      }
+    },
     validateWalletFunds: async (amount: number) => {
       if (!isConnected) return false;
       
