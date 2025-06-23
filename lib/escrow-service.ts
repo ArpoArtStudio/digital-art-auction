@@ -142,7 +142,5 @@ export const escrowService: EscrowService = {
       signature: "0x123456789abcdef...",
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
     }
-  }
-    return "15.68"
   },
 }
