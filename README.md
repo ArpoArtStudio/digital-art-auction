@@ -21,6 +21,14 @@
 - **Visual Timeline Management**: Clear display of scheduled vs basic queue items with color coding
 - **Admin Controls**: Emergency reorganize button and comprehensive queue management tools
 
+### 🎨 **Artist Registration & Management System**
+- **First-Time User Detection**: Automatic detection and registration prompts for new artists
+- **Comprehensive Profiles**: Artist bio, specialization, location, and social media integration
+- **Submission History**: Complete tracking of artwork submissions with status updates
+- **Dashboard Integration**: Artist dashboard with profile management and submission statistics
+- **Seamless Workflow**: Integrated registration flow with artwork submission process
+- **Profile Persistence**: LocalStorage-based profile management with data persistence
+
 ### 💬 **Enhanced Chat System with Bidding Integration**
 - **Wallet-Based Authentication**: Chat access tied to wallet connection (not socket connection)
 - **Level-Based Progression**: 6 color-coded user levels (L1-L6) based on actual bidding activity
@@ -125,9 +133,11 @@
 ### **For Artists**
 1. Connect your Ethereum wallet
 2. Navigate to `/submit-artwork`
-3. Fill out the artwork submission form
-4. Choose between basic queue or custom scheduling
-5. Wait for admin approval
+3. Complete artist registration (first-time users) or view your artist dashboard
+4. Fill out the artwork submission form with enhanced scheduling options
+5. Choose between basic queue or custom scheduling (1-3 days duration)
+6. For 1-day auctions, set precise hours and minutes for optimal timing
+7. Wait for admin approval and track submission status in your dashboard
 
 ### **For Collectors**
 1. Connect your wallet to access bidding features
@@ -429,7 +439,15 @@ node server/socket-server.js
 
 ## 📝 Changelog
 
-### v2.0.0 (Current)
+### v2.1.0 (Current - June 2025)
+- ✅ **Artist Registration System**: Comprehensive artist profile management with first-time user detection
+- ✅ **Enhanced Auction Scheduling**: Updated duration options to 1-3 days with hour/minute precision
+- ✅ **Artist Dashboard**: Profile management with submission history and statistics tracking
+- ✅ **Duration Optimization**: Changed from 1-7-14 days to 1-2-3 days system with 1 day recommended
+- ✅ **Precise Timing**: Hour and minute selection for 1-day auctions
+- ✅ **Registration Flow**: Seamless integration with artwork submission process
+
+### v2.0.0
 - ✅ **Advanced Queue Scheduling**: Priority-based scheduling with conflict detection
 - ✅ **Enhanced Chat System**: Wallet-based authentication and bidding integration
 - ✅ **Responsive Design**: Complete mobile and desktop optimization
@@ -457,18 +475,35 @@ node server/socket-server.js
 
 ## 📅 Recent Updates (June 2025)
 
-### ⚡ Latest Improvements
+### ⚡ Latest Improvements (v2.1)
+- **🎨 Artist Registration System**: Comprehensive artist profile management with first-time user detection
+- **⏰ Enhanced Auction Scheduling**: Updated duration options to 1-3 days with hour/minute precision for 1-day auctions
+- **📋 Artist Dashboard**: Profile management with submission history and statistics tracking
 - **🔧 Next.js 15 Configuration**: Updated configuration for compatibility with latest Next.js version
 - **🚀 Server Optimization**: Resolved port conflicts and improved server startup reliability
 - **🔐 Ethereum Provider**: Enhanced wallet connection stability with extension conflict resolution
 - **📱 Responsive Polish**: Additional mobile optimization and layout improvements
 - **🛠️ Development Experience**: Streamlined development server setup and error handling
 
+### 🎨 Artist Registration Features
+- **First-Time Detection**: Automatic detection of new artists with registration prompts
+- **Profile Management**: Comprehensive artist profiles with bio, specialization, and social links
+- **Submission Tracking**: Complete history of artwork submissions with status tracking
+- **Registration Flow**: Seamless integration with artwork submission process
+
+### ⏰ Auction Duration Updates
+- **Optimized Duration Options**: Changed from 1-7-14 days to 1-2-3 days system
+- **1 Day Recommended**: Default and recommended option for faster auctions
+- **Precise Timing**: Hour (0-24) and minute (0/15/30/45) selection for 1-day auctions
+- **Improved UX**: Cleaner duration selection with better time management
+
 ### 🐛 Bug Fixes
 - ✅ Fixed Next.js configuration warnings for `serverComponentsExternalPackages`
 - ✅ Resolved port 3000 conflicts during development server startup  
 - ✅ Enhanced error handling for wallet connection edge cases
 - ✅ Improved development workflow with better task configuration
+- ✅ Fixed compilation errors in enhanced artwork submission form
+- ✅ Resolved artist registration flow integration issues
 
 ## 📄 License
 

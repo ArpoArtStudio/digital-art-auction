@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -8,6 +8,9 @@ import { CheckCircle, Info } from "lucide-react"
 import { useWallet } from "@/contexts/wallet-context"
 import { NFTGallerySelector } from "@/components/nft-gallery-selector"
 import { NFTMintingForm } from "@/components/nft-minting-form"
+import { ArtistRegistrationForm } from "@/components/artist-registration-form"
+import { ArtistDashboard } from "@/components/artist-dashboard"
+import { isArtistRegistered as checkArtistRegistered, isFirstTimeSubmission, addArtworkSubmission } from "@/lib/artist-utils"
 
 interface NFT {
   tokenId: string
@@ -19,9 +22,54 @@ interface NFT {
 }
 
 export function EnhancedArtworkSubmissionForm() {
-  const { isConnected, connectWallet } = useWallet()
+  const { isConnected, connectWallet, walletAddress } = useWallet()
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null)
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+  const [isArtistRegistered, setIsArtistRegistered] = useState<boolean | null>(null)
+  const [showRegistration, setShowRegistration] = useState(false)
+  const [showNewSubmission, setShowNewSubmission] = useState(false)
+
+  // Check if user is already registered as an artist
+  useEffect(() => {
+    if (isConnected && walletAddress) {
+      const isRegistered = isArtistRegistered(walletAddress)
+      setIsArtistRegistered(isRegistered)
+      
+      // If not registered, show registration form
+      if (!isRegistered) {
+        setShowRegistration(true)
+      } else {
+        // If registered but first time submission, show submission form directly
+        const isFirstTime = isFirstTimeSubmission(walletAddress)
+        if (isFirstTime) {
+          setShowNewSubmission(true)
+        }
+      }
+    }
+  }, [isConnected, walletAddress])
+
+  const handleArtistRegistrationSuccess = (artistData: any) => {
+    setIsArtistRegistered(true)
+    setShowRegistration(false)
+    setShowNewSubmission(true) // Show submission form after registration
+  }
+
+  const handleSkipRegistration = () => {
+    setShowRegistration(false)
+    setShowNewSubmission(true)
+  }
+
+  const handleNewSubmission = () => {
+    setShowNewSubmission(true)
+    setSubmitStatus("idle")
+    setSelectedNFT(null)
+  }
+
+  const handleBackToDashboard = () => {
+    setShowNewSubmission(false)
+    setSubmitStatus("idle")
+    setSelectedNFT(null)
+  }
 
   const handleNFTSelect = (nft: NFT) => {
     setSelectedNFT(nft)
@@ -40,7 +88,7 @@ export function EnhancedArtworkSubmissionForm() {
   }
 
   const handleSubmitToQueue = async () => {
-    if (!selectedNFT) return
+    if (!selectedNFT || !walletAddress) return
 
     try {
       console.log("Submitting NFT to auction queue:", selectedNFT)
@@ -48,6 +96,23 @@ export function EnhancedArtworkSubmissionForm() {
 
       // Simulate submission
       await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      // Create artwork submission record
+      const submission = {
+        id: Math.random().toString(36).substring(2, 11),
+        title: selectedNFT.name,
+        description: selectedNFT.description,
+        category: "digital-art",
+        startingPrice: "0.1", // Default starting price
+        artistWallet: walletAddress,
+        imageUrl: selectedNFT.image,
+        status: "pending" as const,
+        submittedAt: new Date().toISOString(),
+        queuePosition: Math.floor(Math.random() * 10) + 1,
+      }
+
+      // Add to submissions
+      addArtworkSubmission(submission)
 
       setSubmitStatus("success")
     } catch (error) {
@@ -72,33 +137,84 @@ export function EnhancedArtworkSubmissionForm() {
     )
   }
 
-  if (submitStatus === "success") {
+  // Show artist registration form for first-time users
+  if (isConnected && showRegistration) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-500" />
-            Artwork Submitted Successfully!
-          </CardTitle>
-          <CardDescription>Your NFT has been added to the auction queue</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              Your artwork is now in the review queue. You'll be notified once it's approved and scheduled for auction.
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Welcome to Arpo Studio!</strong> Since this is your first time submitting artwork, 
+            please complete your artist registration to create your profile on the platform.
+          </AlertDescription>
+        </Alert>
+        <ArtistRegistrationForm 
+          onRegistrationSuccess={handleArtistRegistrationSuccess}
+          onSkip={handleSkipRegistration}
+        />
+      </div>
     )
   }
 
-  return (
-    <div className="space-y-6">
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
+  if (submitStatus === "success") {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              Artwork Submitted Successfully!
+            </CardTitle>
+            <CardDescription>Your NFT has been added to the auction queue</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Your artwork is now in the review queue. You'll be notified once it's approved and scheduled for auction.
+              </AlertDescription>
+            </Alert>
+            <div className="mt-4">
+              <button 
+                onClick={handleBackToDashboard}
+                className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Show artist dashboard for existing artists (unless they're making a new submission)
+  if (isConnected && isArtistRegistered && !showNewSubmission) {
+    return <ArtistDashboard onNewSubmission={handleNewSubmission} />
+  }
+
+  // Show new submission form for registered artists or after registration
+  if (isConnected && (showNewSubmission || (isArtistRegistered && !showRegistration))) {
+    return (
+      <div className="space-y-6">
+        {isArtistRegistered && (
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Submit New Artwork</h2>
+            <button 
+              onClick={handleBackToDashboard}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              ← Back to Dashboard
+            </button>
+          </div>
+        )}
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Two ways to submit:</strong> Mint a new NFT from your artwork, or select an existing NFT from your
+            wallet.
+          </AlertDescription>
+        </Alert>
           <strong>Two ways to submit:</strong> Mint a new NFT from your artwork, or select an existing NFT from your
           wallet.
         </AlertDescription>

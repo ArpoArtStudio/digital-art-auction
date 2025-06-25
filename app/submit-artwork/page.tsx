@@ -11,7 +11,7 @@ export default function SubmitArtworkPage() {
             <div className="mb-8 text-center">
               <h1 className="text-3xl font-bold">Submit Your Artwork</h1>
               <p className="text-muted-foreground mt-2">
-                Create a new NFT or select from your existing collection to auction on our platform
+                Join our community of artists! Complete your artist profile and submit your NFT artwork for auction on our platform
               </p>
             </div>
             <EnhancedArtworkSubmissionForm />

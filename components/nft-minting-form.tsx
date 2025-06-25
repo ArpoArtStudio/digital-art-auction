@@ -24,6 +24,8 @@ interface MintingFormData {
   duration: string
   customDate: string
   customTime: string
+  durationHours: string
+  durationMinutes: string
   royaltyPercentage: string
 }
 
@@ -39,9 +41,11 @@ export function NFTMintingForm({ onMintSuccess }: NFTMintingFormProps) {
     category: "",
     startingPrice: "",
     schedulingMode: "basic",
-    duration: "7",
+    duration: "1",
     customDate: "",
     customTime: "",
+    durationHours: "24",
+    durationMinutes: "0",
     royaltyPercentage: "5",
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -370,23 +374,67 @@ export function NFTMintingForm({ onMintSuccess }: NFTMintingFormProps) {
                     </p>
                     
                     {formData.schedulingMode === "basic" && (
-                      <div className="mt-3">
-                        <Label htmlFor="duration">Auction Duration</Label>
-                        <Select
-                          value={formData.duration}
-                          onValueChange={(value) => handleInputChange("duration", value)}
-                          disabled={isMinting}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="1">1 day</SelectItem>
-                            <SelectItem value="3">3 days</SelectItem>
-                            <SelectItem value="7">7 days (Recommended)</SelectItem>
-                            <SelectItem value="14">14 days</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <div className="space-y-3 mt-3">
+                        <div>
+                          <Label htmlFor="duration">Auction Duration</Label>
+                          <Select
+                            value={formData.duration}
+                            onValueChange={(value) => handleInputChange("duration", value)}
+                            disabled={isMinting}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">1 day (Recommended)</SelectItem>
+                              <SelectItem value="2">2 days</SelectItem>
+                              <SelectItem value="3">3 days</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {formData.duration === "1" && (
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label htmlFor="durationHours">Hours</Label>
+                              <Select
+                                value={formData.durationHours}
+                                onValueChange={(value) => handleInputChange("durationHours", value)}
+                                disabled={isMinting}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from({ length: 25 }, (_, i) => (
+                                    <SelectItem key={i} value={i.toString()}>
+                                      {i} {i === 1 ? 'hour' : 'hours'}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor="durationMinutes">Minutes</Label>
+                              <Select
+                                value={formData.durationMinutes}
+                                onValueChange={(value) => handleInputChange("durationMinutes", value)}
+                                disabled={isMinting}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[0, 15, 30, 45].map((minutes) => (
+                                    <SelectItem key={minutes} value={minutes.toString()}>
+                                      {minutes} {minutes === 1 ? 'minute' : 'minutes'}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -404,46 +452,90 @@ export function NFTMintingForm({ onMintSuccess }: NFTMintingFormProps) {
                     </p>
                     
                     {formData.schedulingMode === "custom" && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
-                        <div>
-                          <Label htmlFor="customDate">Preferred Date</Label>
-                          <Input
-                            id="customDate"
-                            type="date"
-                            value={formData.customDate}
-                            onChange={(e) => handleInputChange("customDate", e.target.value)}
-                            min={new Date().toISOString().split('T')[0]}
-                            disabled={isMinting}
-                          />
+                      <div className="space-y-3 mt-3">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div>
+                            <Label htmlFor="customDate">Preferred Date</Label>
+                            <Input
+                              id="customDate"
+                              type="date"
+                              value={formData.customDate}
+                              onChange={(e) => handleInputChange("customDate", e.target.value)}
+                              min={new Date().toISOString().split('T')[0]}
+                              disabled={isMinting}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="customTime">Preferred Time</Label>
+                            <Input
+                              id="customTime"
+                              type="time"
+                              value={formData.customTime}
+                              onChange={(e) => handleInputChange("customTime", e.target.value)}
+                              disabled={isMinting}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="duration">Duration</Label>
+                            <Select
+                              value={formData.duration}
+                              onValueChange={(value) => handleInputChange("duration", value)}
+                              disabled={isMinting}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="1">1 day (Recommended)</SelectItem>
+                                <SelectItem value="2">2 days</SelectItem>
+                                <SelectItem value="3">3 days</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor="customTime">Preferred Time</Label>
-                          <Input
-                            id="customTime"
-                            type="time"
-                            value={formData.customTime}
-                            onChange={(e) => handleInputChange("customTime", e.target.value)}
-                            disabled={isMinting}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="duration">Duration</Label>
-                          <Select
-                            value={formData.duration}
-                            onValueChange={(value) => handleInputChange("duration", value)}
-                            disabled={isMinting}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="1">1 day</SelectItem>
-                              <SelectItem value="3">3 days</SelectItem>
-                              <SelectItem value="7">7 days</SelectItem>
-                              <SelectItem value="14">14 days</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        
+                        {formData.duration === "1" && (
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label htmlFor="durationHours">Hours</Label>
+                              <Select
+                                value={formData.durationHours}
+                                onValueChange={(value) => handleInputChange("durationHours", value)}
+                                disabled={isMinting}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from({ length: 25 }, (_, i) => (
+                                    <SelectItem key={i} value={i.toString()}>
+                                      {i} {i === 1 ? 'hour' : 'hours'}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor="durationMinutes">Minutes</Label>
+                              <Select
+                                value={formData.durationMinutes}
+                                onValueChange={(value) => handleInputChange("durationMinutes", value)}
+                                disabled={isMinting}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[0, 15, 30, 45].map((minutes) => (
+                                    <SelectItem key={minutes} value={minutes.toString()}>
+                                      {minutes} {minutes === 1 ? 'minute' : 'minutes'}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                     

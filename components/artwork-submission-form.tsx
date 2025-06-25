@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Upload, AlertCircle, CheckCircle, Info } from "lucide-react"
 import { useWallet } from "@/contexts/wallet-context"
 import { useFeatures } from "@/contexts/feature-context"
+import { ArtistRegistrationForm } from "@/components/artist-registration-form"
 import Image from "next/image"
 
 export function ArtworkSubmissionForm() {
@@ -32,9 +33,33 @@ export function ArtworkSubmissionForm() {
   const [imagePreview, setImagePreview] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+  const [isArtistRegistered, setIsArtistRegistered] = useState<boolean | null>(null)
+  const [showRegistration, setShowRegistration] = useState(false)
   
   // Check if user can submit artwork based on curated mode setting
   const canSubmitArtwork = !features.enableCuratedMode || isAdmin
+
+  // Check if user is already registered as an artist
+  useEffect(() => {
+    if (isConnected && walletAddress) {
+      const isRegistered = localStorage.getItem(`artistRegistered_${walletAddress}`)
+      setIsArtistRegistered(!!isRegistered)
+      
+      // If not registered, show registration form
+      if (!isRegistered) {
+        setShowRegistration(true)
+      }
+    }
+  }, [isConnected, walletAddress])
+
+  const handleArtistRegistrationSuccess = (artistData: any) => {
+    setIsArtistRegistered(true)
+    setShowRegistration(false)
+  }
+
+  const handleSkipRegistration = () => {
+    setShowRegistration(false)
+  }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -119,6 +144,25 @@ export function ArtworkSubmissionForm() {
           </Button>
         </CardContent>
       </Card>
+    )
+  }
+
+  // Show artist registration form for first-time users
+  if (isConnected && showRegistration) {
+    return (
+      <div className="space-y-6">
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Welcome to Arpo Studio!</strong> Since this is your first time submitting artwork, 
+            please complete your artist registration to create your profile on the platform.
+          </AlertDescription>
+        </Alert>
+        <ArtistRegistrationForm 
+          onRegistrationSuccess={handleArtistRegistrationSuccess}
+          onSkip={handleSkipRegistration}
+        />
+      </div>
     )
   }
   
