@@ -455,6 +455,21 @@ node server/socket-server.js
 **Issue**: Text overflow on small screens
 **Solution**: Comprehensive responsive design utilities
 
+## 📅 Recent Updates (June 2025)
+
+### ⚡ Latest Improvements
+- **🔧 Next.js 15 Configuration**: Updated configuration for compatibility with latest Next.js version
+- **🚀 Server Optimization**: Resolved port conflicts and improved server startup reliability
+- **🔐 Ethereum Provider**: Enhanced wallet connection stability with extension conflict resolution
+- **📱 Responsive Polish**: Additional mobile optimization and layout improvements
+- **🛠️ Development Experience**: Streamlined development server setup and error handling
+
+### 🐛 Bug Fixes
+- ✅ Fixed Next.js configuration warnings for `serverComponentsExternalPackages`
+- ✅ Resolved port 3000 conflicts during development server startup  
+- ✅ Enhanced error handling for wallet connection edge cases
+- ✅ Improved development workflow with better task configuration
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

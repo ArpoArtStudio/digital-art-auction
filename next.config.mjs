@@ -9,10 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Fix tunnel connection issues
-  experimental: {
-    serverComponentsExternalPackages: [],
-  },
+  // Updated configuration for Next.js 15
+  serverExternalPackages: [],
   // Localhost specific settings
   async rewrites() {
     return []
