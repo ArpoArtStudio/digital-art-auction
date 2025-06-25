@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Shield, ArrowUp } from "lucide-react"
+import { Shield, ArrowUp, Clock } from "lucide-react"
 import { useWallet } from "@/contexts/wallet-context"
 import { WalletFallback } from "@/components/wallet-fallback"
 import { Button } from "@/components/ui/button"
@@ -180,31 +180,35 @@ export default function CurrentAuction() {
   }
   
   return (
-    <div className="container py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="container py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <div className="lg:col-span-2">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
             <Image
               src={auction.imageUrl || "/placeholder.svg"}
               alt={auction.title}
               fill
               className="object-cover"
               priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 66vw, 66vw"
             />
-          </div>
-          
-          <div className="mt-6">
-            <h1 className="text-3xl font-bold">{auction.title}</h1>
-            <p className="text-lg text-muted-foreground">by {auction.artist}</p>
-            
-            <div className="mt-4 space-y-2">
-              <h2 className="text-xl font-semibold">About this piece</h2>
-              <p className="text-muted-foreground">{auction.description}</p>
-            </div>
           </div>
         </div>
         
-        <div>
+        <div className="space-y-4">
+          {/* Artwork Details - Always on the right */}
+          <Card>
+            <CardContent className="pt-6">
+              <h1 className="text-xl lg:text-2xl font-bold break-words mb-2">{auction.title}</h1>
+              <p className="text-base text-muted-foreground mb-4">by {auction.artist}</p>
+              
+              <div className="space-y-2">
+                <h2 className="text-lg font-semibold">About this piece</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">{auction.description}</p>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
@@ -222,10 +226,11 @@ export default function CurrentAuction() {
             </CardHeader>
             
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <span className={`font-medium ${isEndingSoon ? 'text-red-500' : ''}`}>
-                    {isEndingSoon ? 'Ending soon!' : 'Time remaining:'}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span className={`font-medium whitespace-nowrap ${isEndingSoon ? 'text-red-500' : ''}`}>
+                    Auction ending in
                   </span>
                 </div>
                 <CountdownTimer targetDate={auction.endTime} />

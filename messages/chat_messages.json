@@ -238,5 +238,15 @@
     "timestamp": "2025-06-23T11:08:36.142Z",
     "bidCount": 4,
     "level": 1
+  },
+  {
+    "id": "1750821537611",
+    "walletAddress": "0xec24dcdfa7dc5dc95d18a43fb2a64a23d8e350a0",
+    "displayName": "...350a0",
+    "text": "test",
+    "isAdmin": true,
+    "timestamp": "2025-06-25T03:18:57.611Z",
+    "bidCount": 4,
+    "level": 1
   }
 ]

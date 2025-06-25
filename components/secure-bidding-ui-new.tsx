@@ -146,19 +146,19 @@ export function SecureBiddingUi({
   }
   
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>{artworkName}</CardTitle>
-              <CardDescription>
+    <div className="space-y-4 sm:space-y-6">
+      <Card className="card-responsive">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4">
+            <div className="min-w-0">
+              <CardTitle className="text-lg sm:text-xl break-words">{artworkName}</CardTitle>
+              <CardDescription className="text-sm sm:text-base">
                 Token ID: {tokenId}
               </CardDescription>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-muted-foreground">Current bid</div>
-              <div className="text-2xl font-bold">{currentBid.toFixed(2)} ETH</div>
+            <div className="text-left sm:text-right flex-shrink-0">
+              <div className="text-xs sm:text-sm text-muted-foreground">Current bid</div>
+              <div className="text-xl sm:text-2xl font-bold">{currentBid.toFixed(2)} ETH</div>
             </div>
           </div>
         </CardHeader>
@@ -174,31 +174,22 @@ export function SecureBiddingUi({
             </div>
           )}
           
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
             <div className="flex items-center">
-              <Clock className="h-4 w-4 mr-2" />
-              <span className={`font-medium ${isEndingSoon ? 'text-red-500' : ''}`}>
+              <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className={`font-medium text-sm sm:text-base whitespace-nowrap ${isEndingSoon ? 'text-red-500' : ''}`}>
                 {isEndingSoon ? 'Ending soon!' : 'Auction ending in'}
               </span>
             </div>
-            <CountdownTimer targetDate={endTime} />
-          </div>
-
-          <div className="border-t pt-4">
-            <h3 className="text-lg font-semibold mb-2">{artworkName}</h3>
-            <p className="text-sm text-muted-foreground mb-2">by Digital Visionary</p>
-            <div className="mb-4">
-              <h4 className="font-medium mb-1">About this piece</h4>
-              <p className="text-sm text-muted-foreground">
-                A mesmerizing exploration of digital landscapes that blur the boundaries between reality and imagination.
-              </p>
+            <div className="w-full sm:w-auto">
+              <CountdownTimer targetDate={endTime} />
             </div>
           </div>
           
           {hasBid && (
             <Alert variant="default" className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-900">
               <AlertTriangle className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <AlertDescription className="text-green-800 dark:text-green-300">
+              <AlertDescription className="text-green-800 dark:text-green-300 text-sm">
                 You have an active bid on this auction. If you win, payment will be automatically processed.
               </AlertDescription>
             </Alert>
@@ -206,7 +197,7 @@ export function SecureBiddingUi({
           
           {!isConnected ? (
             <Button 
-              className="w-full" 
+              className="w-full text-sm sm:text-base py-2 sm:py-3" 
               onClick={connectWallet}
             >
               Connect Wallet to Bid
@@ -216,23 +207,23 @@ export function SecureBiddingUi({
               <Button
                 variant="default"
                 size="lg"
-                className="w-full flex items-center justify-center gap-2"
+                className="w-full flex items-center justify-center gap-2 text-sm sm:text-base py-2 sm:py-3"
                 disabled={isBidding || isVerifyingFunds}
                 onClick={handleMaximumBid}
               >
-                <ArrowUp className="h-4 w-4" />
-                Max Bid (10%) - {maxBidAmount.toFixed(2)} ETH
+                <ArrowUp className="h-4 w-4 flex-shrink-0" />
+                <span className="break-words">Max Bid (10%) - {maxBidAmount.toFixed(2)} ETH</span>
               </Button>
               
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full flex items-center justify-center gap-2"
+                className="w-full flex items-center justify-center gap-2 text-sm sm:text-base py-2 sm:py-3"
                 disabled={isBidding || isVerifyingFunds}
                 onClick={handleMinimumBid}
               >
-                <Award className="h-4 w-4" />
-                Min Bid (1%) - {minBidAmount.toFixed(2)} ETH
+                <Award className="h-4 w-4 flex-shrink-0" />
+                <span className="break-words">Min Bid (1%) - {minBidAmount.toFixed(2)} ETH</span>
               </Button>
             </div>
           )}

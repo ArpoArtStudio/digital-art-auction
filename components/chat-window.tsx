@@ -160,9 +160,9 @@ export function ChatWindow() {
   }
 
   // Simple quick bid for back-compatibility
-  const handleQuickBid = () => {
+  const handleQuickBid = async () => {
     const bidAmount = getNextMinimumBid()
-    const success = placeBid(bidAmount)
+    const success = await placeBid(bidAmount)
     
     if (success) {
       notifyBidPlaced()
@@ -204,8 +204,9 @@ export function ChatWindow() {
           {/* Display current username type */}
           {walletConnected && hasSetUsername && (
             <div className="text-xs text-muted-foreground">
-              ID: {displayNameOption === 'short_address' ? 'Short Address' : 
-                   displayNameOption === 'full_address' ? 'Full Address' : 'ENS'}
+              ID: {displayNameOption === DisplayNameOption.FIRST_5 ? 'Short Address' : 
+                   displayNameOption === DisplayNameOption.LAST_5 ? 'Last 5 Address' :
+                   displayNameOption === DisplayNameOption.ENS ? 'ENS' : 'Address'}
             </div>
           )}
           {/* Export button only visible to admins */}
@@ -217,7 +218,7 @@ export function ChatWindow() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-full"
-                    onClick={exportChatHistory}
+                    onClick={() => exportChatHistory()}
                   >
                     <Download className="h-4 w-4" />
                   </Button>
@@ -354,11 +355,11 @@ export function ChatWindow() {
                   onChange={(e) => setMessageText(e.target.value)}
                   onKeyPress={handleKeyPress}
                   maxLength={42}
-                  disabled={!isConnected}
+                  disabled={!walletConnected}
                 />
                 <Button 
                   onClick={handleSendMessage}
-                  disabled={!isConnected || !messageText.trim()}
+                  disabled={!walletConnected || !messageText.trim()}
                   size="icon"
                 >
                   <Send className="h-4 w-4" />

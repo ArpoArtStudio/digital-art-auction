@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,9 +14,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ArrowUp, ArrowDown, Play, Trash2, Eye, AlertTriangle, CheckCircle, Calendar, Clock } from "lucide-react"
+import { ArrowUp, ArrowDown, Play, Trash2, Eye, AlertTriangle, CheckCircle, Calendar, Clock, Zap } from "lucide-react"
 import { format, parseISO, addDays } from "date-fns"
 import Image from "next/image"
+import { toast } from "sonner"
+import { 
+  reorganizeQueueWithPriority, 
+  detectConflicts, 
+  emergencyReorganization,
+  validateSchedulingRequest,
+  QueueItem as SchedulerQueueItem 
+} from "@/lib/queue-scheduler"
 
 interface QueueItem {
   id: string
@@ -189,63 +195,96 @@ export function QueueManagement() {
   }
 
   const reorganizeQueue = () => {
-    setQueueItems(prev => {
-      const approvedItems = prev.filter(item => item.status === "approved")
+    setQueueItems((prev) => {
+      const approvedItems = prev.filter((item) => item.status === "approved")
       
-      // Separate custom scheduled items from basic queue items
-      const customScheduled = approvedItems.filter(item => item.schedulingMode === "custom")
-      const basicQueue = approvedItems.filter(item => item.schedulingMode === "basic")
+      // Convert to scheduler format, ensuring all required fields are present
+      const schedulerItems: SchedulerQueueItem[] = approvedItems.map(item => ({
+        id: item.id,
+        title: item.title,
+        artist: item.artist,
+        artistWallet: item.artistWallet,
+        imageUrl: item.imageUrl,
+        startingPrice: item.startingPrice,
+        category: item.category,
+        status: item.status,
+        queuePosition: item.queuePosition,
+        submittedAt: item.submittedAt,
+        nftContract: item.nftContract,
+        tokenId: item.tokenId,
+        schedulingMode: item.schedulingMode || "basic",
+        customDate: item.customDate,
+        customTime: item.customTime,
+        duration: item.duration,
+        scheduledStartDate: item.scheduledStartDate,
+        scheduledEndDate: item.scheduledEndDate,
+        priority: item.schedulingMode === "custom" ? "high" : "medium"
+      }))
       
-      // Sort custom scheduled items by their scheduled date/time
-      customScheduled.sort((a, b) => {
-        const aTime = a.scheduledStartDate ? new Date(a.scheduledStartDate).getTime() : 0
-        const bTime = b.scheduledStartDate ? new Date(b.scheduledStartDate).getTime() : 0
-        return aTime - bTime
+      // Use the queue scheduler
+      const reorganized = reorganizeQueueWithPriority(schedulerItems)
+      
+      // Check for conflicts in the reorganized queue
+      const allConflicts: any[] = []
+      reorganized.forEach(item => {
+        const conflicts = detectConflicts(item, reorganized.filter(i => i.id !== item.id))
+        allConflicts.push(...conflicts)
       })
       
-      // For basic queue items, calculate their positions around custom scheduled items
-      let currentDate = new Date()
-      let position = 1
-      const reorganized: QueueItem[] = []
-      
-      // Merge custom and basic items chronologically
-      let basicIndex = 0
-      let customIndex = 0
-      
-      while (basicIndex < basicQueue.length || customIndex < customScheduled.length) {
-        const nextCustomTime = customIndex < customScheduled.length && customScheduled[customIndex].scheduledStartDate
-          ? new Date(customScheduled[customIndex].scheduledStartDate!).getTime()
-          : Infinity
-        
-        // If we have basic items and either no more custom items or basic item should come first
-        if (basicIndex < basicQueue.length && currentDate.getTime() < nextCustomTime) {
-          const basicItem = { ...basicQueue[basicIndex] }
-          basicItem.queuePosition = position
-          basicItem.scheduledStartDate = currentDate.toISOString()
-          basicItem.scheduledEndDate = addDays(currentDate, parseInt(basicItem.duration)).toISOString()
-          
-          reorganized.push(basicItem)
-          currentDate = addDays(currentDate, parseInt(basicItem.duration))
-          basicIndex++
-          position++
-        } else if (customIndex < customScheduled.length) {
-          // Add custom scheduled item
-          const customItem = { ...customScheduled[customIndex] }
-          customItem.queuePosition = position
-          
-          reorganized.push(customItem)
-          currentDate = new Date(customItem.scheduledEndDate!)
-          customIndex++
-          position++
-        }
+      if (allConflicts.length > 0) {
+        console.warn("Queue conflicts detected:", allConflicts)
+        toast("⚠️ Queue conflicts detected - check console for details", {
+          description: `${allConflicts.length} potential scheduling conflicts found`
+        })
       }
       
-      // Return all items (approved reorganized + pending/rejected unchanged)
+      // Return reorganized items + non-approved items unchanged
       return [
         ...reorganized,
         ...prev.filter(item => item.status !== "approved")
       ]
     })
+    
+    toast.success("🚀 Queue reorganized with advanced priority scheduling!")
+  }
+
+  // Emergency reorganization function for urgent situations
+  const emergencyReorganizeQueue = () => {
+    setQueueItems((prev) => {
+      const approvedItems = prev.filter((item) => item.status === "approved")
+      
+      // Convert to scheduler format with emergency priority
+      const schedulerItems: SchedulerQueueItem[] = approvedItems.map(item => ({
+        id: item.id,
+        title: item.title,
+        artist: item.artist,
+        artistWallet: item.artistWallet,
+        imageUrl: item.imageUrl,
+        startingPrice: item.startingPrice,
+        category: item.category,
+        status: item.status,
+        queuePosition: item.queuePosition,
+        submittedAt: item.submittedAt,
+        nftContract: item.nftContract,
+        tokenId: item.tokenId,
+        schedulingMode: item.schedulingMode || "basic",
+        customDate: item.customDate,
+        customTime: item.customTime,
+        duration: item.duration,
+        scheduledStartDate: item.scheduledStartDate,
+        scheduledEndDate: item.scheduledEndDate,
+        priority: "high" // Emergency priority for all items
+      }))
+      
+      const reorganized = reorganizeQueueWithPriority(schedulerItems)
+      
+      return [
+        ...reorganized,
+        ...prev.filter(item => item.status !== "approved")
+      ]
+    })
+    
+    toast.success("🚨 Emergency queue reorganization completed!")
   }
 
   const moveInQueue = (id: string, direction: "up" | "down") => {
@@ -340,6 +379,15 @@ export function QueueManagement() {
             >
               <Calendar className="h-4 w-4" />
               Reorganize Queue
+            </Button>
+            <Button 
+              onClick={emergencyReorganizeQueue}
+              variant="destructive"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Zap className="h-4 w-4" />
+              Emergency Reorganize
             </Button>
             <div className="text-sm text-muted-foreground">
               Escrow Wallet: <code className="bg-muted px-2 py-1 rounded">0xEscrow123...456</code>

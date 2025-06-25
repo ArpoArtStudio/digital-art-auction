@@ -2,6 +2,12 @@
 
 import { createContext, useContext, useState, useEffect, useMemo } from "react"
 import { useFeatures } from "./feature-context"
+import { 
+  getEthereumProvider, 
+  isWalletAvailable, 
+  getWalletAccounts, 
+  requestWalletConnection 
+} from "@/lib/ethereum-provider"
 
 // Default admin wallet address
 const DEFAULT_ADMIN_WALLET = process.env.NEXT_PUBLIC_ADMIN_WALLET || "0xec24DCDFA7Dc5dc95D18a43FB2A64A23d8E350a0"
@@ -190,12 +196,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }
 
   const checkWalletConnection = async () => {
-    if (typeof window === "undefined" || !window.ethereum) {
+    if (!isWalletAvailable()) {
       return
     }
 
     try {
-      const accounts = await window.ethereum.request({ method: "eth_accounts" })
+      const accounts = await getWalletAccounts()
       if (accounts.length > 0) {
         const address = accounts[0]
         setWalletAddress(address)
@@ -215,13 +221,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Wallet connection is only available in the browser")
       }
 
-      if (!window.ethereum) {
+      if (!isWalletAvailable()) {
         throw new Error("No Ethereum wallet detected. Please install MetaMask.")
       }
 
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      })
+      const accounts = await requestWalletConnection()
 
       if (accounts.length > 0) {
         const address = accounts[0]
@@ -414,14 +418,4 @@ export function useWallet() {
     throw new Error("useWallet must be used within a WalletProvider")
   }
   return context
-}
-
-// Type declaration for window.ethereum
-declare global {
-  interface Window {
-    ethereum?: {
-      isMetaMask?: boolean
-      request: (args: { method: string; params?: any[] }) => Promise<any>
-    }
-  }
 }

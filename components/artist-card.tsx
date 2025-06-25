@@ -1,3 +1,5 @@
+'use client';
+
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
@@ -28,23 +30,23 @@ export function ArtistCard({ artist }: ArtistCardProps) {
   const { features } = useFeatures();
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden card-responsive">
       <CardHeader className="p-0">
-        <div className="relative h-48 w-full bg-gradient-to-b from-primary/20 to-muted">
+        <div className="relative h-32 sm:h-40 lg:h-48 w-full bg-gradient-to-b from-primary/20 to-muted">
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
             <Image
               src={artist.avatarUrl || "/placeholder.svg"}
               alt={artist.name}
-              width={100}
-              height={100}
-              className="rounded-full border-4 border-background"
+              width={80}
+              height={80}
+              className="rounded-full border-4 border-background sm:w-[90px] sm:h-[90px] lg:w-[100px] lg:h-[100px]"
             />
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-16 text-center">
-        <h3 className="text-xl font-bold">{artist.name}</h3>
-        <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{artist.bio}</p>
+      <CardContent className="pt-12 sm:pt-14 lg:pt-16 text-center px-4 sm:px-6">
+        <h3 className="text-lg sm:text-xl font-bold break-words">{artist.name}</h3>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-2 line-clamp-3">{artist.bio}</p>
         
         {/* Social Media Links */}
         {artist.socialLinks && (
@@ -92,24 +94,24 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           </div>
         )}
         
-        <div className="flex justify-center gap-8 mt-4">
-          <div>
-            <div className="font-bold">{artist.artCount}</div>
+        <div className="flex justify-center gap-4 sm:gap-6 lg:gap-8 mt-4">
+          <div className="text-center">
+            <div className="font-bold text-sm sm:text-base">{artist.artCount}</div>
             <div className="text-xs text-muted-foreground">Artworks</div>
           </div>
-          <div>
-            <div className="font-bold">{artist.totalSales} ETH</div>
+          <div className="text-center">
+            <div className="font-bold text-sm sm:text-base break-words">{artist.totalSales} ETH</div>
             <div className="text-xs text-muted-foreground">Total Sales</div>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-center">
+      <CardFooter className="flex justify-center px-4 sm:px-6">
         {features.enablePublicArtistProfiles ? (
           <Link href={`/artists/${artist.id}`}>
-            <Button variant="outline">View Profile</Button>
+            <Button variant="outline" size="sm" className="text-xs sm:text-sm">View Profile</Button>
           </Link>
         ) : (
-          <Button variant="outline" disabled>Profiles Not Public</Button>
+          <Button variant="outline" size="sm" className="text-xs sm:text-sm" disabled>Profiles Not Public</Button>
         )}
       </CardFooter>
     </Card>

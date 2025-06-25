@@ -8,7 +8,7 @@ export default function Home() {
       <SiteHeader />
       <main className="flex-1">
         <CurrentAuction />
-        <div className="container py-16">
+        <div className="container py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
           <UpcomingAuctions />
         </div>
       </main>

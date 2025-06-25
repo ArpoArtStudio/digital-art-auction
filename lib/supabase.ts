@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize the Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error('Supabase URL or key is missing. Please check your environment variables.');
+if (supabaseUrl.includes('placeholder') || supabaseKey.includes('placeholder')) {
+  console.warn('Using placeholder Supabase credentials. Database functionality will be limited.');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);

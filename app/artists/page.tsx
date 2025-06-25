@@ -64,9 +64,9 @@ export default function ArtistsPage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <div className="container py-8">
-          <h1 className="text-3xl font-bold mb-8">Artist Profiles</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="container py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Artist Profiles</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {artists.map((artist) => (
               <ArtistCard key={artist.id} artist={artist} />
             ))}

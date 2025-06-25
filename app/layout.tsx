@@ -14,7 +14,7 @@ import { ChatWindow } from "@/components/chat-window"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "ArtBase - Digital Art Auctions on Base Chain",
+  title: "Arpo Studio - Digital Art Auctions on Base Chain",
   description: "Bid on exclusive digital art pieces using Ethereum on the Base chain",
     generator: 'v0.dev'
 }

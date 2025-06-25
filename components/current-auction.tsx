@@ -7,6 +7,7 @@ import { useWallet } from "@/contexts/wallet-context"
 import { WalletFallback } from "@/components/wallet-fallback"
 import { SecureBiddingUi } from "@/components/secure-bidding-ui-new" // Use our new bidding UI
 import { useSmartContractBidding } from "@/hooks/use-smart-contract-bidding" // Use our new bidding hook
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function CurrentAuction() {
   const { isConnected } = useWallet()
@@ -89,19 +90,22 @@ export default function CurrentAuction() {
               priority
             />
           </div>
-          
-          <div className="mt-6">
-            <h1 className="text-3xl font-bold">{auction.title}</h1>
-            <p className="text-lg text-muted-foreground">by {auction.artist}</p>
-            
-            <div className="mt-4 space-y-2">
-              <h2 className="text-xl font-semibold">About this piece</h2>
-              <p className="text-muted-foreground">{auction.description}</p>
-            </div>
-          </div>
         </div>
         
-        <div>
+        <div className="space-y-4">
+          {/* Artwork Details - Always on the right */}
+          <Card>
+            <CardContent className="pt-6">
+              <h1 className="text-xl lg:text-2xl font-bold break-words mb-2">{auction.title}</h1>
+              <p className="text-base text-muted-foreground mb-4">by {auction.artist}</p>
+              
+              <div className="space-y-2">
+                <h2 className="text-lg font-semibold">About this piece</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">{auction.description}</p>
+              </div>
+            </CardContent>
+          </Card>
+
           <SecureBiddingUi
             auctionId={auction.id}
             tokenId={auction.tokenId}
