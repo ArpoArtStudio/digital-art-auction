@@ -39,27 +39,9 @@ export function ArtworkSubmissionForm() {
     startingPrice: "",
     duration: "1",
     royaltyPercentage: "5",
-    email: "",
-    schedulingType: "standard", // "standard" or "custom"
-    customDate: "",
-    customTime: "",
-    customDuration: "1",
-    hours: "24",
-    minutes: "0",
   })
   
-  // NFT selection data for existing NFT section
-  const [nftFormData, setNftFormData] = useState({
-    email: "",
-    schedulingType: "standard",
-    customDate: "",
-    customTime: "",
-    customDuration: "1",
-    duration: "1",
-    hours: "24",
-    minutes: "0",
-  })
-  
+  // NFT selection data
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null)
   
   // Common states
@@ -98,10 +80,6 @@ export function ArtworkSubmissionForm() {
 
   const handleUploadInputChange = (field: string, value: string) => {
     setUploadFormData((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleNftInputChange = (field: string, value: string) => {
-    setNftFormData(prev => ({ ...prev, [field]: value }))
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,17 +122,7 @@ export function ArtworkSubmissionForm() {
       // 1. Upload image to IPFS
       // 2. Create NFT metadata
       // 3. Mint NFT on blockchain
-      // 4. Submit to auction queue with scheduling info
-      
-      const submissionData = {
-        ...uploadFormData,
-        imageFile,
-        walletAddress,
-        submissionType: "upload",
-        timestamp: new Date().toISOString()
-      }
-      
-      console.log("Artwork submission data:", submissionData)
+      // 4. Submit to auction queue
       
       setSubmitStatus("success")
       
@@ -166,13 +134,6 @@ export function ArtworkSubmissionForm() {
         startingPrice: "",
         duration: "1",
         royaltyPercentage: "5",
-        email: "",
-        schedulingType: "standard",
-        customDate: "",
-        customTime: "",
-        customDuration: "1",
-        hours: "24",
-        minutes: "0",
       })
       setImageFile(null)
       setImagePreview("")
@@ -197,18 +158,8 @@ export function ArtworkSubmissionForm() {
       
       // Here you would:
       // 1. Transfer NFT to escrow wallet
-      // 2. Add to auction queue with scheduling info
+      // 2. Add to auction queue
       // 3. Record submission in database
-      
-      const submissionData = {
-        selectedNFT,
-        ...nftFormData,
-        walletAddress,
-        submissionType: "existing-nft",
-        timestamp: new Date().toISOString()
-      }
-      
-      console.log("NFT submission data:", submissionData)
       
       setSubmitStatus("success")
       setSelectedNFT(null)
@@ -454,40 +405,6 @@ export function ArtworkSubmissionForm() {
                     </Select>
                   </div>
 
-                  {/* Show hour/minute selection only when 1 day is selected */}
-                  {uploadFormData.duration === "1" && uploadFormData.schedulingType === "standard" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="hours">Hours (0-24)</Label>
-                        <Select value={uploadFormData.hours} onValueChange={(value) => handleUploadInputChange("hours", value)}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({ length: 25 }, (_, i) => (
-                              <SelectItem key={i} value={i.toString()}>{i} hours</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="minutes">Minutes</Label>
-                        <Select value={uploadFormData.minutes} onValueChange={(value) => handleUploadInputChange("minutes", value)}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">0 minutes</SelectItem>
-                            <SelectItem value="15">15 minutes</SelectItem>
-                            <SelectItem value="30">30 minutes</SelectItem>
-                            <SelectItem value="45">45 minutes</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </>
-                  )}
-
                   <div className="space-y-2">
                     <Label htmlFor="royalty">Royalty % (Future Sales)</Label>
                     <Select value={uploadFormData.royaltyPercentage} onValueChange={(value) => handleUploadInputChange("royaltyPercentage", value)}>
@@ -503,93 +420,6 @@ export function ArtworkSubmissionForm() {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-
-                {/* Email and Scheduling Options */}
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address (Optional)</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={uploadFormData.email}
-                      onChange={(e) => handleUploadInputChange("email", e.target.value)}
-                      placeholder="your.email@example.com"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      We'll contact you if there are any scheduling conflicts or updates needed.
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Scheduling Type</Label>
-                    <Select value={uploadFormData.schedulingType} onValueChange={(value) => handleUploadInputChange("schedulingType", value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="standard">Standard Queue (Next Available Slot)</SelectItem>
-                        <SelectItem value="custom">Custom Date & Time (Priority Scheduling)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Custom Date/Time Selection */}
-                  {uploadFormData.schedulingType === "custom" && (
-                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg space-y-4">
-                      <h4 className="font-semibold text-blue-800">Priority Custom Scheduling</h4>
-                      <p className="text-sm text-blue-700">
-                        Request a specific date and time for your auction. This will take priority over standard queue submissions, 
-                        and existing auctions may be rescheduled to accommodate your request (subject to admin approval).
-                      </p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="custom-date">Preferred Date *</Label>
-                          <Input
-                            id="custom-date"
-                            type="date"
-                            value={uploadFormData.customDate}
-                            onChange={(e) => handleUploadInputChange("customDate", e.target.value)}
-                            min={new Date().toISOString().split('T')[0]}
-                            required={uploadFormData.schedulingType === "custom"}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="custom-time">Preferred Time *</Label>
-                          <Input
-                            id="custom-time"
-                            type="time"
-                            value={uploadFormData.customTime}
-                            onChange={(e) => handleUploadInputChange("customTime", e.target.value)}
-                            required={uploadFormData.schedulingType === "custom"}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="custom-duration">Duration *</Label>
-                          <Select value={uploadFormData.customDuration} onValueChange={(value) => handleUploadInputChange("customDuration", value)}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="1">1 day</SelectItem>
-                              <SelectItem value="2">2 days</SelectItem>
-                              <SelectItem value="3">3 days</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div className="bg-yellow-50 border border-yellow-200 p-3 rounded">
-                        <p className="text-xs text-yellow-700">
-                          <strong>Note:</strong> Custom scheduling requests require admin approval and may incur additional fees. 
-                          We'll contact you via email with confirmation or alternative time slots.
-                        </p>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Process Information */}
@@ -671,145 +501,6 @@ export function ArtworkSubmissionForm() {
                           <li>• You'll receive 90% of the final sale price</li>
                           <li>• Cancellation after submission requires a 0.1 ETH penalty</li>
                         </ul>
-                      </div>
-
-                      {/* Email and Scheduling Options for Existing NFT */}
-                      <div className="space-y-4 mb-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="nft-email">Email Address (Optional)</Label>
-                          <Input
-                            id="nft-email"
-                            type="email"
-                            value={nftFormData.email}
-                            onChange={(e) => handleNftInputChange("email", e.target.value)}
-                            placeholder="your.email@example.com"
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            We'll contact you if there are any scheduling conflicts or updates needed.
-                          </p>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Scheduling Type</Label>
-                          <Select value={nftFormData.schedulingType} onValueChange={(value) => handleNftInputChange("schedulingType", value)}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="standard">Standard Queue (Next Available Slot)</SelectItem>
-                              <SelectItem value="custom">Custom Date & Time (Priority Scheduling)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {nftFormData.schedulingType === "standard" && (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="nft-duration">Auction Duration</Label>
-                              <Select value={nftFormData.duration} onValueChange={(value) => handleNftInputChange("duration", value)}>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="1">1 day (Recommended)</SelectItem>
-                                  <SelectItem value="2">2 days</SelectItem>
-                                  <SelectItem value="3">3 days</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            {/* Show hour/minute selection only when 1 day is selected */}
-                            {nftFormData.duration === "1" && (
-                              <>
-                                <div className="space-y-2">
-                                  <Label htmlFor="nft-hours">Hours (0-24)</Label>
-                                  <Select value={nftFormData.hours} onValueChange={(value) => handleNftInputChange("hours", value)}>
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {Array.from({ length: 25 }, (_, i) => (
-                                        <SelectItem key={i} value={i.toString()}>{i} hours</SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                  <Label htmlFor="nft-minutes">Minutes</Label>
-                                  <Select value={nftFormData.minutes} onValueChange={(value) => handleNftInputChange("minutes", value)}>
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="0">0 minutes</SelectItem>
-                                      <SelectItem value="15">15 minutes</SelectItem>
-                                      <SelectItem value="30">30 minutes</SelectItem>
-                                      <SelectItem value="45">45 minutes</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Custom Date/Time Selection for NFT */}
-                        {nftFormData.schedulingType === "custom" && (
-                          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg space-y-4">
-                            <h4 className="font-semibold text-blue-800">Priority Custom Scheduling</h4>
-                            <p className="text-sm text-blue-700">
-                              Request a specific date and time for your auction. This will take priority over standard queue submissions, 
-                              and existing auctions may be rescheduled to accommodate your request (subject to admin approval).
-                            </p>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="nft-custom-date">Preferred Date *</Label>
-                                <Input
-                                  id="nft-custom-date"
-                                  type="date"
-                                  value={nftFormData.customDate}
-                                  onChange={(e) => handleNftInputChange("customDate", e.target.value)}
-                                  min={new Date().toISOString().split('T')[0]}
-                                  required={nftFormData.schedulingType === "custom"}
-                                />
-                              </div>
-
-                              <div className="space-y-2">
-                                <Label htmlFor="nft-custom-time">Preferred Time *</Label>
-                                <Input
-                                  id="nft-custom-time"
-                                  type="time"
-                                  value={nftFormData.customTime}
-                                  onChange={(e) => handleNftInputChange("customTime", e.target.value)}
-                                  required={nftFormData.schedulingType === "custom"}
-                                />
-                              </div>
-
-                              <div className="space-y-2">
-                                <Label htmlFor="nft-custom-duration">Duration *</Label>
-                                <Select value={nftFormData.customDuration} onValueChange={(value) => handleNftInputChange("customDuration", value)}>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="1">1 day</SelectItem>
-                                    <SelectItem value="2">2 days</SelectItem>
-                                    <SelectItem value="3">3 days</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-
-                            <div className="bg-yellow-50 border border-yellow-200 p-3 rounded">
-                              <p className="text-xs text-yellow-700">
-                                <strong>Note:</strong> Custom scheduling requests require admin approval and may incur additional fees. 
-                                We'll contact you via email with confirmation or alternative time slots.
-                              </p>
-                            </div>
-                          </div>
-                        )}
                       </div>
 
                       <Button

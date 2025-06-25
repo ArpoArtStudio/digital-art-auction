@@ -1,6 +1,6 @@
-# Arpo Studio - Advanced Digital Art Auction Platform v2.0
+# Arpo Studio - Advanced Digital Art Auction Platform v2.2
 
-*A comprehensive Web3 digital art auction platform with advanced scheduling, secure bidding, and interactive chat features*
+*A comprehensive Web3 digital art auction platform with enhanced scheduling, custom date requests, secure bidding, and interactive chat features*
 
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/bigf0t-protonmes-projects/v0-ethereum-auction-website)
 [![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
@@ -13,12 +13,16 @@
 
 ## ✨ Major Features
 
-### 🚀 **Advanced Queue Scheduling System**
+### 🚀 **Enhanced Queue Scheduling System**
 - **Priority-Based Logic**: Custom scheduled auctions automatically interrupt basic queue
+- **Custom Date/Time Requests**: Artists can request specific dates and times (priority scheduling)
+- **Precision Timing**: For 1-day auctions, select exact hours (0-24) and minutes (0/15/30/45)
+- **Email Coordination**: Optional email addresses for scheduling coordination and conflict resolution
 - **Conflict Detection & Resolution**: Automatic detection of scheduling overlaps with admin notifications
 - **Emergency Reorganization**: Instant queue reorganization for urgent situations with high priority
 - **Time Gap Management**: Graceful handling of periods with no scheduled auctions
 - **Visual Timeline Management**: Clear display of scheduled vs basic queue items with color coding
+- **Admin Calendar**: Interactive calendar view for managing auction slots and conflicts
 - **Admin Controls**: Emergency reorganize button and comprehensive queue management tools
 
 ### 🎨 **Artist Registration & Management System**
@@ -439,7 +443,18 @@ node server/socket-server.js
 
 ## 📝 Changelog
 
-### v2.1.0 (Current - June 2025)
+### v2.2.0 (Current - June 2025)
+- ✅ **Custom Date/Time Scheduling**: Artists can request specific auction dates and times with priority handling
+- ✅ **Enhanced Email Integration**: Optional email addresses for scheduling coordination and conflict resolution
+- ✅ **Admin Calendar View**: Interactive calendar component for visual auction slot management
+- ✅ **Enhanced Queue Management**: Priority-based queue with drag-and-drop reordering and conflict detection
+- ✅ **Precision Timing Controls**: Hour (0-24) and minute (0/15/30/45) selection for 1-day auctions
+- ✅ **Two-Section Submission Form**: Upload artwork vs. existing NFT submission with complete scheduling options
+- ✅ **Priority Queue Logic**: Custom requests take priority and automatically reorganize existing schedules
+- ✅ **Conflict Resolution System**: Automatic detection and admin tools for scheduling conflicts
+- ✅ **Visual Status Management**: Enhanced status tracking (pending → scheduled → confirmed → processing)
+
+### v2.1.0
 - ✅ **Artist Registration System**: Comprehensive artist profile management with first-time user detection
 - ✅ **Enhanced Auction Scheduling**: Updated duration options to 1-3 days with hour/minute precision
 - ✅ **Artist Dashboard**: Profile management with submission history and statistics tracking

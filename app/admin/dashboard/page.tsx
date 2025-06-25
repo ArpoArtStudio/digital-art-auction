@@ -5,6 +5,8 @@ import { AuctionChart } from "@/components/auction-chart"
 import { AdminWalletInfo } from "@/components/admin-wallet-info"
 import { UsernameManagement } from "@/components/username-management"
 import { CustomScheduleManagement } from "@/components/custom-schedule-management"
+import { AdminCalendar } from "@/components/admin-calendar"
+import { EnhancedQueueManagement } from "@/components/enhanced-queue-management"
 
 export default function AdminDashboard() {
   return (
@@ -22,6 +24,10 @@ export default function AdminDashboard() {
         <UsernameManagement />
 
         <CustomScheduleManagement />
+
+        <EnhancedQueueManagement />
+
+        <AdminCalendar />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <AuctionChart />
