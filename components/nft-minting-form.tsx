@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Upload, Loader2, CheckCircle, AlertCircle } from "lucide-react"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Upload, Loader2, CheckCircle, AlertCircle, Calendar, Clock } from "lucide-react"
 import { useWallet } from "@/contexts/wallet-context"
 import Image from "next/image"
 
@@ -19,7 +20,10 @@ interface MintingFormData {
   description: string
   category: string
   startingPrice: string
+  schedulingMode: "basic" | "custom"
   duration: string
+  customDate: string
+  customTime: string
   royaltyPercentage: string
 }
 
@@ -34,7 +38,10 @@ export function NFTMintingForm({ onMintSuccess }: NFTMintingFormProps) {
     description: "",
     category: "",
     startingPrice: "",
+    schedulingMode: "basic",
     duration: "7",
+    customDate: "",
+    customTime: "",
     royaltyPercentage: "5",
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -136,7 +143,10 @@ export function NFTMintingForm({ onMintSuccess }: NFTMintingFormProps) {
         description: "",
         category: "",
         startingPrice: "",
+        schedulingMode: "basic",
         duration: "7",
+        customDate: "",
+        customTime: "",
         royaltyPercentage: "5",
       })
       setImageFile(null)
@@ -301,7 +311,7 @@ export function NFTMintingForm({ onMintSuccess }: NFTMintingFormProps) {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="startingPrice">Starting Price (ETH) *</Label>
                 <Input
@@ -315,24 +325,6 @@ export function NFTMintingForm({ onMintSuccess }: NFTMintingFormProps) {
                   required
                   disabled={isMinting}
                 />
-              </div>
-
-              <div>
-                <Label htmlFor="duration">Auction Duration</Label>
-                <Select
-                  value={formData.duration}
-                  onValueChange={(value) => handleInputChange("duration", value)}
-                  disabled={isMinting}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="3">3 days</SelectItem>
-                    <SelectItem value="7">7 days</SelectItem>
-                    <SelectItem value="14">14 days</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               <div>
@@ -355,6 +347,119 @@ export function NFTMintingForm({ onMintSuccess }: NFTMintingFormProps) {
                 </Select>
               </div>
             </div>
+
+            {/* Auction Scheduling Options */}
+            <div className="space-y-4">
+              <Label className="text-base font-semibold">Auction Scheduling</Label>
+              
+              <RadioGroup 
+                value={formData.schedulingMode} 
+                onValueChange={(value: "basic" | "custom") => handleInputChange("schedulingMode", value)}
+                className="space-y-4"
+                disabled={isMinting}
+              >
+                <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                  <RadioGroupItem value="basic" id="basic" className="mt-1" />
+                  <div className="space-y-2 flex-1">
+                    <Label htmlFor="basic" className="cursor-pointer font-medium flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      Basic Scheduling (Recommended)
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Your auction will be scheduled in the next available slot based on duration.
+                    </p>
+                    
+                    {formData.schedulingMode === "basic" && (
+                      <div className="mt-3">
+                        <Label htmlFor="duration">Auction Duration</Label>
+                        <Select
+                          value={formData.duration}
+                          onValueChange={(value) => handleInputChange("duration", value)}
+                          disabled={isMinting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">1 day</SelectItem>
+                            <SelectItem value="3">3 days</SelectItem>
+                            <SelectItem value="7">7 days (Recommended)</SelectItem>
+                            <SelectItem value="14">14 days</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                  <RadioGroupItem value="custom" id="custom" className="mt-1" />
+                  <div className="space-y-2 flex-1">
+                    <Label htmlFor="custom" className="cursor-pointer font-medium flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Custom Date & Time (Requires Admin Approval)
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Request a specific date and time for your auction. Subject to availability and admin approval.
+                    </p>
+                    
+                    {formData.schedulingMode === "custom" && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                        <div>
+                          <Label htmlFor="customDate">Preferred Date</Label>
+                          <Input
+                            id="customDate"
+                            type="date"
+                            value={formData.customDate}
+                            onChange={(e) => handleInputChange("customDate", e.target.value)}
+                            min={new Date().toISOString().split('T')[0]}
+                            disabled={isMinting}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="customTime">Preferred Time</Label>
+                          <Input
+                            id="customTime"
+                            type="time"
+                            value={formData.customTime}
+                            onChange={(e) => handleInputChange("customTime", e.target.value)}
+                            disabled={isMinting}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="duration">Duration</Label>
+                          <Select
+                            value={formData.duration}
+                            onValueChange={(value) => handleInputChange("duration", value)}
+                            disabled={isMinting}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">1 day</SelectItem>
+                              <SelectItem value="3">3 days</SelectItem>
+                              <SelectItem value="7">7 days</SelectItem>
+                              <SelectItem value="14">14 days</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {formData.schedulingMode === "custom" && (
+                      <Alert className="mt-3">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          Custom scheduling requests require admin approval. You'll be notified once your request is reviewed. 
+                          If declined, your artwork will be placed in the regular queue.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
           </div>
 
           <div className="bg-muted p-4 rounded-lg">
@@ -363,7 +468,10 @@ export function NFTMintingForm({ onMintSuccess }: NFTMintingFormProps) {
               <li>• Your artwork will be uploaded to IPFS for permanent storage</li>
               <li>• A unique NFT will be minted on the blockchain</li>
               <li>• The NFT will be automatically transferred to our escrow</li>
-              <li>• Your artwork will be added to the auction queue</li>
+              <li>• Your artwork will be added to the auction queue based on your scheduling choice</li>
+              {formData.schedulingMode === "custom" && (
+                <li>• Custom scheduling requests will be reviewed by admins within 24 hours</li>
+              )}
               <li>• Minting fee: ~$5-20 in gas fees (paid to blockchain)</li>
             </ul>
           </div>

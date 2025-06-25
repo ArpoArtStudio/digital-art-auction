@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Localhost Server",
+			"type": "shell",
+			"command": "cd \"/Users/mac/Downloads/digital-art-auction22-main 2\" && export NODE_OPTIONS=\"--dns-result-order=ipv4first\" && export HOSTNAME=\"localhost\" && npx next dev --hostname localhost --port 3000",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

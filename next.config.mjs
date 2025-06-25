@@ -9,21 +9,21 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Enhanced fixes for tunnel connection issues
+  // Fix tunnel connection issues
   experimental: {
-    scrollRestoration: true,
+    serverComponentsExternalPackages: [],
   },
-  // External packages moved to the correct location
-  serverExternalPackages: [],
-  // Set proper HTTP keep-alive options
-  compress: true,
+  // Localhost specific settings
+  async rewrites() {
+    return []
+  },
+  // Disable problematic features that can cause tunnel issues
+  compress: false,
   poweredByHeader: false,
-  // Improved connection settings
-  httpAgentOptions: {
-    keepAlive: true,
+  // Simplified configuration to avoid networking issues
+  env: {
+    HOSTNAME: 'localhost',
   },
-  // Increase timeouts to prevent ERR_TUNNEL_CONNECTION_FAILED
-  staticPageGenerationTimeout: 120,
 }
 
 export default nextConfig

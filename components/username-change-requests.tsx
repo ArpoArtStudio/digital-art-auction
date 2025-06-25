@@ -12,7 +12,21 @@ export function UsernameChangeRequests() {
   const { pendingUsernameRequests, approveUsernameChange, rejectUsernameChange, isAdmin } = useWallet()
 
   if (!isAdmin) {
-    return null
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Username Change Requests</CardTitle>
+          <CardDescription>
+            You need admin privileges to view this section
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="py-12 text-center text-muted-foreground">
+            Please connect with an admin wallet to review username change requests
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -45,24 +59,34 @@ export function UsernameChangeRequests() {
                   <div className="text-xs text-muted-foreground">
                     Current name: <span className="font-medium">{request.currentName}</span>
                   </div>
+                  <div className="text-xs text-muted-foreground">
+                    Requested change: <span className="font-medium">{request.requestedName || "Display option change"}</span>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="h-8 w-8 p-0" 
-                    onClick={() => approveUsernameChange(request.walletAddress)}
-                  >
-                    <Check className="h-4 w-4 text-green-500" />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="h-8 w-8 p-0"
-                    onClick={() => rejectUsernameChange(request.walletAddress)}
-                  >
-                    <X className="h-4 w-4 text-red-500" />
-                  </Button>
+                <div className="flex flex-col space-y-2">
+                  <div className="flex space-x-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="h-8 w-8 p-0" 
+                      onClick={() => approveUsernameChange(request.walletAddress)}
+                      title="Approve request"
+                    >
+                      <Check className="h-4 w-4 text-green-500" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="h-8 w-8 p-0"
+                      onClick={() => rejectUsernameChange(request.walletAddress)}
+                      title="Reject request"
+                    >
+                      <X className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                  <div className="text-xs text-center text-muted-foreground">
+                    {request.approved ? 'Approved' : 'Pending'}
+                  </div>
                 </div>
               </div>
             ))}

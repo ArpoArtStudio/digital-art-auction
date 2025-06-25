@@ -1,8 +1,32 @@
 # Digital Art Auction Platform - Complete Documentation
 
-**Version:** 1.0.0  
-**Last Updated:** June 22, 2025  
+**Version:** 2.0.0  
+**Last Updated:** June 25, 2025  
 **Authors:** Development Team
+
+---
+
+## 🎨 Latest Features (v2.0.0)
+
+### 🆕 **Enhanced Auction Scheduling System**
+- **Dual Scheduling Modes**: Basic (duration-based) and Custom (date/time requests)
+- **Smart Queue Management**: Intelligent reorganization with conflict detection
+- **Admin Approval Workflow**: Streamlined review process for custom schedules
+
+### 🔧 **Enhanced Wallet Display Options**
+- **Flexible Address Display**: Choose between first 5, last 5 characters, or ENS names
+- **Multi-ENS Support**: Select from multiple ENS names with persistent preferences
+- **Admin Username Management**: Approval workflow for username change requests
+
+### 🔍 **Advanced Chat Management**
+- **Comprehensive Search**: Search by usernames, dates, times, wallet addresses, keywords
+- **Enhanced Filtering**: Multi-criteria search with real-time results
+- **Better Admin Tools**: Improved moderation and export capabilities
+
+### 🎯 **Improved User Experience**
+- **Streamlined NFT Minting**: Enhanced form with scheduling options
+- **Clean Auction UI**: Optimized layout without redundant information
+- **Global Chat Access**: Chat available on all pages
 
 ---
 
@@ -16,36 +40,45 @@
    - [Auction View](#auction-view)
    - [Artist Galleries](#artist-galleries)
    - [Previous Auctions](#previous-auctions)
-4. [Bidding System](#bidding-system)
+4. [Auction Scheduling System](#auction-scheduling-system) **NEW**
+   - [Basic Scheduling](#basic-scheduling)
+   - [Custom Scheduling](#custom-scheduling)
+   - [Queue Management](#queue-management)
+   - [Conflict Resolution](#conflict-resolution)
+5. [Bidding System](#bidding-system)
    - [Bid Placement](#bid-placement)
    - [Quick Bid Feature](#quick-bid-feature)
    - [Bid History](#bid-history)
    - [Escrow Management](#escrow-management)
-5. [Chat System](#chat-system)
+6. [Chat System](#chat-system)
    - [Chat Window](#chat-window)
    - [Username Selection](#username-selection)
+   - [Chat Management](#chat-management) **ENHANCED**
+   - [Search & Filtering](#search--filtering) **NEW**
    - [Chat Rules & Moderation](#chat-rules--moderation)
    - [User Levels & Gamification](#user-levels--gamification)
    - [Notifications](#notifications)
-6. [Wallet Integration](#wallet-integration)
+7. [Wallet Integration](#wallet-integration)
    - [Connection Process](#connection-process)
-   - [Wallet Display Options](#wallet-display-options)
-   - [ENS Integration](#ens-integration)
-7. [Admin Panel](#admin-panel)
+   - [Wallet Display Options](#wallet-display-options) **ENHANCED**
+   - [ENS Integration](#ens-integration) **ENHANCED**
+   - [Username Management](#username-management) **NEW**
+8. [Admin Panel](#admin-panel)
    - [Dashboard](#dashboard)
    - [Auction Management](#auction-management)
    - [User Management](#user-management)
+   - [Schedule Management](#schedule-management) **NEW**
    - [Content Moderation](#content-moderation)
    - [Analytics](#analytics)
-8. [Smart Contracts](#smart-contracts)
+9. [Smart Contracts](#smart-contracts)
    - [Auction Contract](#auction-contract)
    - [Escrow Contract](#escrow-contract)
    - [NFT Minting](#nft-minting)
-9. [Backend Services](#backend-services)
-   - [Socket Server](#socket-server)
-   - [Database Schema](#database-schema)
-   - [API Endpoints](#api-endpoints)
-10. [Development & Deployment](#development--deployment)
+10. [Backend Services](#backend-services)
+    - [Socket Server](#socket-server)
+    - [Database Schema](#database-schema)
+    - [API Endpoints](#api-endpoints)
+11. [Development & Deployment](#development--deployment)
     - [Local Development](#local-development)
     - [Production Deployment](#production-deployment)
     - [Environment Variables](#environment-variables)
@@ -269,6 +302,106 @@ The application follows a responsive design with a dark theme by default (light 
 
 ---
 
+## Auction Scheduling System
+
+The platform features a sophisticated scheduling system that offers artists flexibility while maintaining optimal auction flow and preventing conflicts.
+
+### Basic Scheduling
+
+**Overview:**
+Basic scheduling is the recommended option for most artists, providing automatic queue placement based on auction duration.
+
+**How It Works:**
+1. Artist selects auction duration (1, 3, 7, or 14 days)
+2. System automatically assigns next available slot in queue
+3. No admin approval required
+4. Immediate processing and confirmation
+
+**Benefits:**
+- **Instant Confirmation**: No waiting for approval
+- **Optimal Placement**: System ensures fair queue ordering
+- **Flexibility**: Can still choose auction duration
+- **Reliability**: Guaranteed slot assignment
+
+**Process:**
+```
+Artist Submission → Duration Selection → Automatic Queue Placement → Confirmation
+```
+
+### Custom Scheduling
+
+**Overview:**
+Custom scheduling allows artists to request specific dates and times for their auctions, subject to admin approval and availability.
+
+**How It Works:**
+1. Artist selects "Custom Date & Time" option
+2. Chooses preferred date, time, and duration
+3. System checks for conflicts automatically
+4. Request sent to admin dashboard for review
+5. Admin approves/rejects with detailed feedback
+6. If approved, auction is scheduled at requested time
+7. If rejected, artist can resubmit or default to basic queue
+
+**Conflict Detection:**
+- **Automatic Scanning**: System checks all existing scheduled auctions
+- **Overlap Prevention**: Prevents auctions from running simultaneously
+- **Visual Indicators**: Admins see conflict warnings before approval
+- **Smart Suggestions**: Alternative time slots may be suggested
+
+**Admin Review Process:**
+- **24-Hour Review**: Custom requests reviewed within 24 hours
+- **Detailed Feedback**: Clear approval/rejection reasons
+- **Artist Notification**: Automatic email/dashboard notifications
+- **Queue Integration**: Approved slots automatically integrate with main queue
+
+### Queue Management
+
+**Smart Queue Organization:**
+The system maintains an intelligent queue that accommodates both basic and custom scheduled auctions.
+
+**Queue Features:**
+- **Mixed Queue Support**: Seamlessly handles basic and custom items
+- **Chronological Ordering**: Maintains optimal auction timing
+- **Automatic Reorganization**: Admin tools for queue optimization
+- **Visual Indicators**: Clear scheduling type badges and status
+- **Movement Controls**: Basic items can be reordered, custom items are fixed
+
+**Admin Queue Controls:**
+- **Reorganize Button**: Automatically reorders queue for optimal flow
+- **Manual Positioning**: Move basic queue items up/down
+- **Status Tracking**: Visual indicators for all scheduling types
+- **Conflict Resolution**: Tools for handling scheduling conflicts
+
+**Queue Display:**
+- **Position Numbers**: Clear queue position for all items
+- **Scheduling Badges**: 
+  - 🔵 Basic Queue (moveable)
+  - 🟣 Custom Schedule (fixed time)
+- **Scheduled Times**: Actual start/end times for all auctions
+- **Duration Info**: Clear display of auction length
+
+### Conflict Resolution
+
+**Automatic Prevention:**
+- **Real-time Checking**: Conflicts detected during submission
+- **Visual Warnings**: Clear indicators for admins
+- **Batch Validation**: Queue-wide conflict checking
+- **Smart Suggestions**: Alternative time slot recommendations
+
+**Manual Resolution:**
+- **Admin Dashboard**: Centralized conflict management
+- **Flexible Approval**: Admins can suggest alternative times
+- **Artist Communication**: Structured feedback system
+- **Queue Reorganization**: Automatic reordering after changes
+
+**Conflict Types Handled:**
+- **Time Overlap**: Auctions running simultaneously
+- **Too Close**: Insufficient gap between auctions
+- **Platform Maintenance**: Reserved system maintenance windows
+- **High-Traffic Conflicts**: Peak time collision management
+
+---
+
 ## Bidding System
 
 ### Bid Placement
@@ -465,9 +598,9 @@ The chat system provides real-time communication between auction participants, e
 The username selection system allows users to choose how they appear in the auction chat and bidding history:
 
 **Display Options:**
-- First 5 characters of wallet address (default)
-- Full wallet address
-- ENS name (if available)
+- **First 5 Characters**: Shows first 5 characters with ellipsis (0x1234...)
+- **Last 5 Characters**: Shows ellipsis with last 5 characters (...56789)
+- **ENS Name**: Full ENS domain name (if available)
 
 **User Experience:**
 - First-time users are prompted to select a display name upon connection
@@ -488,9 +621,64 @@ The username selection system allows users to choose how they appear in the auct
 **Technical Implementation:**
 - Components:
   - `/components/username-selection-dialog.tsx`
-  - `/components/username-change-requests.tsx`
+  - `/components/username-management.tsx`
 - Context:
   - `/contexts/wallet-context.tsx` manages display options and persistence
+
+### Chat Management
+
+**Admin Dashboard:**
+Comprehensive chat management system for administrators to monitor and moderate platform communications.
+
+**Key Features:**
+- **Message Overview**: View all chat messages across the platform
+- **User Management**: Track user activity and enforce chat rules
+- **Export Functionality**: Download chat histories for analysis or record-keeping
+- **Moderation Tools**: Delete messages, mute users, and manage violations
+
+**Chat History Organization:**
+- Messages grouped by date for easy navigation
+- Participant count and message statistics
+- Bulk selection for mass operations
+- Individual conversation viewing with detailed timestamps
+
+### Search & Filtering
+
+**Comprehensive Search Capabilities:**
+The platform offers advanced search functionality for chat management and moderation.
+
+**Search Criteria:**
+- **Usernames/Display Names**: Find messages from specific users
+- **Wallet Addresses**: Search by full or partial wallet addresses
+- **Message Content**: Search within message text for keywords
+- **Dates**: Find messages from specific dates (YYYY-MM-DD, Month DD, YYYY)
+- **Times**: Search by time stamps (HH:MM format)
+- **User Levels**: Find messages from specific user levels ("level 3", "l3")
+- **Admin Messages**: Filter for admin-only communications
+- **Keywords**: Search for any keyword within conversations
+
+**Search Examples:**
+```
+"2024-06-23"     → Find chats from specific date
+"admin"          → Find admin messages  
+"0x1234"         → Find messages from specific wallet
+"level 3"        → Find messages from level 3 users
+"hello"          → Find messages containing "hello"
+"14:30"          → Find messages sent at 2:30 PM
+```
+
+**Advanced Filtering:**
+- **Real-time Results**: Search results update as you type
+- **Multi-criteria Search**: Combine multiple search terms
+- **Export Filtered Results**: Download search results for analysis
+- **Date Range Filtering**: Narrow search to specific time periods
+
+**Technical Implementation:**
+- Components:
+  - `/components/chat-management.tsx`
+  - `/hooks/use-chat-history-by-date.tsx`
+- Enhanced search algorithms with fuzzy matching
+- Indexed search for performance optimization
 
 This system ensures users have flexibility in how they present themselves while maintaining accountability through wallet connection.
 
@@ -542,24 +730,70 @@ Users can connect their crypto wallets to the platform to participate in auction
 
 ### Wallet Display Options
 
-Users can customize how their wallet information is displayed on the platform for privacy or preference reasons.
+Users can customize how their wallet information is displayed on the platform for privacy and preference reasons.
 
-**Display Options:**
-- Full wallet address
-- First 5 and last 4 characters of the wallet address (e.g., `0x1234...abcd`)
-- ENS name (if available)
+**Enhanced Display Options (v2.0):**
+- **First 5 Characters**: Shows first 5 characters with ellipsis (0x1234...)
+- **Last 5 Characters**: Shows ellipsis with last 5 characters (...56789)
+- **ENS Name**: Full ENS domain name with multi-ENS selection support
+
+**Key Features:**
+- **Flexible Choice**: Users can switch between first 5 or last 5 character display
+- **Privacy Options**: Choose level of address exposure
+- **Persistent Preferences**: Settings saved across sessions
+- **Real-time Updates**: Changes apply immediately across the platform
+
+**Multi-ENS Support:**
+- **Multiple Names**: Users with multiple ENS names can select their preferred display
+- **Easy Switching**: Quick selection between available ENS names
+- **Smart Detection**: Automatically detects all ENS names associated with wallet
 
 **Technical Implementation:**
-- Display logic handled in the user interface components
-- ENS names fetched and cached on wallet connect
-- User preference stored in localStorage
+- Enhanced display logic with flexible character positioning
+- Multi-ENS fetching and selection system
+- Improved preference storage and retrieval
+- Real-time display updates across all components
 
 ### ENS Integration
 
-The platform integrates with the Ethereum Name Service (ENS) to provide human-readable names for wallet addresses.
+**Enhanced ENS Support (v2.0):**
+The platform provides comprehensive ENS integration with advanced features for users with multiple domain names.
 
 **ENS Features:**
-- Automatic fetching of ENS names on wallet connection
+- **Automatic Detection**: Fetches all ENS names associated with wallet
+- **Multi-ENS Selection**: Choose from multiple ENS names if available
+- **Persistent Choice**: Selected ENS name remembered across sessions
+- **Verification Indicators**: Visual confirmation of ENS ownership
+- **Fallback Support**: Graceful fallback to address display if ENS unavailable
+
+**User Experience:**
+- **Selection Dialog**: Clean interface for choosing between ENS names
+- **Preview Display**: See how your selection will appear before confirming
+- **Easy Updates**: Change ENS selection anytime through settings
+- **Global Application**: Selected name appears in chat, bids, and profiles
+
+### Username Management
+
+**Admin-Controlled Username System:**
+New feature allowing users to request username changes with admin oversight.
+
+**Request Process:**
+1. **User Submission**: Users can request username changes through settings
+2. **Admin Review**: All requests appear in admin dashboard for approval
+3. **Approval Workflow**: Admins can approve or reject with detailed reasons
+4. **Automatic Updates**: Approved changes apply immediately across platform
+
+**Admin Features:**
+- **Centralized Dashboard**: View all pending username change requests
+- **Request Details**: Full context including current and requested usernames
+- **Approval Tools**: Easy approve/reject workflow with reason tracking
+- **User Communication**: Automatic notifications for request status updates
+
+**Security & Moderation:**
+- **Abuse Prevention**: Admin approval prevents inappropriate usernames
+- **Audit Trail**: Complete history of username changes for accountability
+- **Rollback Capability**: Admins can revert problematic changes
+- **Consistent Display**: Changes apply across chat, bidding, and profiles
 - Display of ENS names in chat, bids, and user profiles
 - Support for ENS name registration and management
 
@@ -622,6 +856,47 @@ Admin users can view and manage all registered users on the platform.
 - User management features use data tables for easy browsing and searching
 - Edit forms use React Hook Form for validation and submission
 - Ban/lift ban actions trigger email notifications to users
+
+### Schedule Management
+
+**Custom Schedule Request Management:**
+New comprehensive system for managing artist requests for specific auction dates and times.
+
+**Request Dashboard:**
+- **Pending Requests**: View all requests awaiting admin review
+- **Conflict Detection**: Automatic identification of time slot conflicts
+- **Request Details**: Complete information including artwork, artist, and timing
+- **Approval Workflow**: Streamlined approve/reject process with reason tracking
+
+**Key Features:**
+- **Visual Conflict Indicators**: Clear warnings for overlapping auction times
+- **Batch Processing**: Handle multiple requests efficiently
+- **Artist Communication**: Structured feedback system for rejections
+- **Queue Integration**: Approved requests automatically integrate with main queue
+
+**Conflict Resolution Tools:**
+- **Time Slot Validation**: Prevents double-booking of auction times
+- **Alternative Suggestions**: Recommend available time slots for rejected requests
+- **Queue Reorganization**: Automatic reordering when new slots are approved
+- **Override Capabilities**: Admin override for special circumstances
+
+**Request Types Handled:**
+- **Date-Specific**: Requests for specific calendar dates
+- **Time-Specific**: Requests for particular hours
+- **Duration-Based**: Varying auction lengths (1-14 days)
+- **Special Events**: Coordination with platform events or partnerships
+
+**Administrative Controls:**
+- **Approval Analytics**: Track approval rates and common rejection reasons
+- **Calendar View**: Visual timeline of all scheduled auctions
+- **Bulk Operations**: Mass approve/reject for efficiency
+- **Audit Trail**: Complete history of all scheduling decisions
+
+**Technical Implementation:**
+- Real-time conflict detection algorithms
+- Integrated calendar system for visual scheduling
+- Automated queue reorganization logic
+- Admin notification system for urgent requests
 
 ### Content Moderation
 

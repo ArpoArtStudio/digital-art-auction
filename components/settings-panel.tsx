@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,8 @@ import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
-import { Wallet, Globe, DollarSign, Bell, Shield } from "lucide-react"
+import { Wallet, Globe, DollarSign, Bell, Shield, Plus, Trash2 } from "lucide-react"
+import { useFeatures } from "@/contexts/feature-context"
 
 export function SettingsPanel() {
   // General settings state
@@ -25,26 +26,42 @@ export function SettingsPanel() {
   const [feeSettings, setFeeSettings] = useState({
     platformFeePercentage: "10",
     artistRoyaltyPercentage: "5",
-    minimumBidIncrement: "0.05",
     minimumStartingBid: "0.1",
   })
 
-  // Wallet settings state
-  const [walletSettings, setWalletSettings] = useState({
-    escrowWalletAddress: "0xEscrow123456789abcdef",
-    platformWalletAddress: "0xPlatform987654321fedcba",
-    adminWalletAddress: "0xec24DCDFA7Dc5dc95D18a43FB2A64A23d8E350a0",
-  })
+  // Get feature context
+  const { features, walletSettings, updateFeatures, updateWalletSettings } = useFeatures()
+  
+  // Admin wallets state - changed from single wallet to array of wallets
+  const [adminWallets, setAdminWallets] = useState([
+    "0xec24DCDFA7Dc5dc95D18a43FB2A64A23d8E350a0"
+  ])
 
-  // Feature toggle settings
-  const [featureToggles, setFeatureToggles] = useState({
-    enableEmailNotifications: true,
-    enableAutomaticAuctionStart: false,
-    enableNFTRoyalties: true,
-    enablePublicArtistProfiles: true,
-    enableCuratedMode: false,
-    enableArtworkReviews: false,
-  })
+  // Temporary state for new admin wallet input
+  const [newAdminWallet, setNewAdminWallet] = useState("")
+
+  // Local state for feature toggles (synced with context)
+  const [featureToggles, setFeatureToggles] = useState(features)
+
+  // Load admin wallets from localStorage on mount
+  useEffect(() => {
+    const storedAdminWallets = localStorage.getItem('adminWallets')
+    if (storedAdminWallets) {
+      try {
+        const parsedWallets = JSON.parse(storedAdminWallets)
+        if (Array.isArray(parsedWallets) && parsedWallets.length > 0) {
+          setAdminWallets(parsedWallets)
+        }
+      } catch (e) {
+        console.error("Error parsing admin wallets:", e)
+      }
+    }
+  }, [])
+
+  // Update local feature toggles when context changes
+  useEffect(() => {
+    setFeatureToggles(features)
+  }, [features])
 
   const handleGeneralSettingsSave = () => {
     // In a real app, this would save to an API or database
@@ -57,13 +74,53 @@ export function SettingsPanel() {
   }
 
   const handleWalletSettingsSave = () => {
-    // In a real app, this would save to an API or database
+    // Save admin wallets to local storage for the wallet context to use
+    localStorage.setItem('adminWallets', JSON.stringify(adminWallets))
+    
+    // Update wallet settings in the feature context
+    updateWalletSettings({
+      escrowWalletAddress: walletSettings.escrowWalletAddress,
+      platformWalletAddress: walletSettings.platformWalletAddress
+    })
+    
     toast.success("Wallet settings saved successfully")
   }
 
   const handleFeatureToggleSave = () => {
-    // In a real app, this would save to an API or database
+    // Update feature toggles in the context
+    updateFeatures(featureToggles)
     toast.success("Feature settings saved successfully")
+  }
+
+  // Add a new admin wallet
+  const addAdminWallet = () => {
+    // Simple validation
+    if (!newAdminWallet.trim() || !newAdminWallet.startsWith('0x')) {
+      toast.error("Please enter a valid wallet address starting with 0x")
+      return
+    }
+
+    // Check for duplicates
+    if (adminWallets.includes(newAdminWallet)) {
+      toast.error("This wallet is already in the admin list")
+      return
+    }
+
+    setAdminWallets([...adminWallets, newAdminWallet])
+    setNewAdminWallet("") // Clear the input
+    toast.success("Admin wallet added")
+  }
+
+  // Remove an admin wallet
+  const removeAdminWallet = (walletToRemove: string) => {
+    // Don't allow removing the last wallet
+    if (adminWallets.length <= 1) {
+      toast.error("You must have at least one admin wallet")
+      return
+    }
+
+    setAdminWallets(adminWallets.filter(wallet => wallet !== walletToRemove))
+    toast.success("Admin wallet removed")
   }
 
   return (
@@ -129,79 +186,59 @@ export function SettingsPanel() {
         </Card>
       </TabsContent>
 
-      <TabsContent value="fees">
+      <TabsContent value="fees" className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Fees & Pricing
-            </CardTitle>
-            <CardDescription>Configure the fees and pricing for auctions</CardDescription>
+            <CardTitle>Fees & Pricing</CardTitle>
+            <CardDescription>
+              Configure the fees and pricing for auctions
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="platform-fee">Platform Fee Percentage</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="platform-fee"
-                  type="number"
-                  min="0"
-                  max="30"
-                  value={feeSettings.platformFeePercentage}
-                  onChange={(e) => setFeeSettings({ ...feeSettings, platformFeePercentage: e.target.value })}
-                  className="max-w-[100px]"
-                />
-                <span>%</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Fee taken by the platform from each sale</p>
+            <div>
+              <Label htmlFor="platformFeePercentage">Platform Fee Percentage</Label>
+              <Input
+                id="platformFeePercentage"
+                type="number"
+                min={0}
+                max={100}
+                value={feeSettings.platformFeePercentage}
+                onChange={e => setFeeSettings({ ...feeSettings, platformFeePercentage: e.target.value })}
+                className="max-w-xs"
+              />
+              <span className="ml-2">%</span>
+              <div className="text-xs text-muted-foreground">Fee taken by the platform from each sale</div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="royalty-percentage">Artist Royalty Percentage</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="royalty-percentage"
-                  type="number"
-                  min="0"
-                  max="25"
-                  value={feeSettings.artistRoyaltyPercentage}
-                  onChange={(e) => setFeeSettings({ ...feeSettings, artistRoyaltyPercentage: e.target.value })}
-                  className="max-w-[100px]"
-                />
-                <span>%</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Royalty percentage for artists on secondary sales</p>
+            <div>
+              <Label htmlFor="artistRoyaltyPercentage">Artist Royalty Percentage</Label>
+              <Input
+                id="artistRoyaltyPercentage"
+                type="number"
+                min={0}
+                max={100}
+                value={feeSettings.artistRoyaltyPercentage}
+                onChange={e => setFeeSettings({ ...feeSettings, artistRoyaltyPercentage: e.target.value })}
+                className="max-w-xs"
+              />
+              <span className="ml-2">%</span>
+              <div className="text-xs text-muted-foreground">Royalty percentage for artists on secondary sales</div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="min-bid-increment">Minimum Bid Increment</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="min-bid-increment"
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={feeSettings.minimumBidIncrement}
-                  onChange={(e) => setFeeSettings({ ...feeSettings, minimumBidIncrement: e.target.value })}
-                  className="max-w-[100px]"
-                />
-                <span>ETH</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Minimum amount a new bid must exceed the current bid</p>
+            <div>
+              <Label htmlFor="minimumStartingBid">Minimum Starting Bid</Label>
+              <Input
+                id="minimumStartingBid"
+                type="number"
+                min={0}
+                step="0.01"
+                value={feeSettings.minimumStartingBid}
+                onChange={e => setFeeSettings({ ...feeSettings, minimumStartingBid: e.target.value })}
+                className="max-w-xs"
+              />
+              <span className="ml-2">ETH</span>
+              <div className="text-xs text-muted-foreground">Minimum starting bid for any auction</div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="min-starting-bid">Minimum Starting Bid</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="min-starting-bid"
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={feeSettings.minimumStartingBid}
-                  onChange={(e) => setFeeSettings({ ...feeSettings, minimumStartingBid: e.target.value })}
-                  className="max-w-[100px]"
-                />
-                <span>ETH</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Minimum starting bid for any auction</p>
+            <div className="text-xs text-muted-foreground">
+              <strong>Note:</strong> Minimum bid increment is fixed at 1%. Maximum bid increment is fixed at 10%.
             </div>
           </CardContent>
           <CardFooter>
@@ -225,7 +262,7 @@ export function SettingsPanel() {
               <Input
                 id="escrow-wallet"
                 value={walletSettings.escrowWalletAddress}
-                onChange={(e) => setWalletSettings({ ...walletSettings, escrowWalletAddress: e.target.value })}
+                onChange={(e) => updateWalletSettings({ escrowWalletAddress: e.target.value })}
               />
               <p className="text-sm text-muted-foreground">All NFTs are held in escrow during auctions</p>
             </div>
@@ -234,18 +271,50 @@ export function SettingsPanel() {
               <Input
                 id="platform-wallet"
                 value={walletSettings.platformWalletAddress}
-                onChange={(e) => setWalletSettings({ ...walletSettings, platformWalletAddress: e.target.value })}
+                onChange={(e) => updateWalletSettings({ platformWalletAddress: e.target.value })}
               />
               <p className="text-sm text-muted-foreground">Platform fees are sent to this wallet</p>
             </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="admin-wallet">Admin Wallet Address</Label>
-              <Input
-                id="admin-wallet"
-                value={walletSettings.adminWalletAddress}
-                onChange={(e) => setWalletSettings({ ...walletSettings, adminWalletAddress: e.target.value })}
-              />
-              <p className="text-sm text-muted-foreground">Only this wallet has admin access</p>
+              <Label>Admin Wallet Addresses</Label>
+              <p className="text-sm text-muted-foreground mb-2">These wallets have admin access to the platform</p>
+              
+              <div className="space-y-2">
+                {adminWallets.map((wallet, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <Input 
+                      value={wallet} 
+                      readOnly
+                      className="flex-grow"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => removeAdminWallet(wallet)}
+                      disabled={adminWallets.length <= 1} // Prevent removing the last wallet
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex items-center space-x-2 mt-2">
+                <Input
+                  placeholder="New admin wallet address (0x...)"
+                  value={newAdminWallet}
+                  onChange={(e) => setNewAdminWallet(e.target.value)}
+                  className="flex-grow"
+                />
+                <Button 
+                  onClick={addAdminWallet} 
+                  variant="outline" 
+                  size="icon"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardContent>
           <CardFooter>

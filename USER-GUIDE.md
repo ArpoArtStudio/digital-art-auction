@@ -54,6 +54,8 @@ You can choose how your wallet address is displayed in the chat:
 2. **Full Address**: Shows complete wallet address
 3. **ENS Name**: Shows ENS name if available (e.g., user.eth)
 
+Note: Any changes to your display name after initial setup require admin approval to prevent abuse. When you request a change, you'll continue using your current display name until an admin approves your request. You'll be notified once your request is processed.
+
 ## Chat Rules
 
 To maintain a positive community environment, these rules are automatically enforced:

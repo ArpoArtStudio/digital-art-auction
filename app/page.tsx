@@ -1,8 +1,6 @@
 import CurrentAuction from "@/components/current-auction"
 import { SiteHeader } from "@/components/site-header"
 import { UpcomingAuctions } from "@/components/upcoming-auctions"
-import { ChatButton } from "@/components/chat-button"
-import { ChatWindow } from "@/components/chat-window"
 
 export default function Home() {
   return (
@@ -14,8 +12,6 @@ export default function Home() {
           <UpcomingAuctions />
         </div>
       </main>
-      <ChatButton />
-      <ChatWindow />
     </div>
   )
 }

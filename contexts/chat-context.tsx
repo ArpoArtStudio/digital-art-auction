@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { io, Socket } from 'socket.io-client'
 import { useWallet } from '@/contexts/wallet-context'
 import { useBiddingContext } from '@/contexts/bidding-context'
+import { useFeatures } from '@/contexts/feature-context'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 
@@ -59,6 +60,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
   
   const { isConnected: walletConnected, walletAddress, isAdmin, displayName } = useWallet()
   const { getBidCountForWallet, getLevelForWallet } = useBiddingContext()
+  const { features } = useFeatures()
 
   // Helper function to add bidding level info to messages
   const addBiddingInfoToMessages = (messages: ChatMessage[]): ChatMessage[] => {
@@ -233,6 +235,12 @@ export function ChatProvider({ children }: ChatProviderProps) {
 
   // Function to notify the server about a new bid
   const notifyBidPlaced = () => {
+    // Skip notifications if email notifications are enabled instead
+    if (features.enableEmailNotifications) {
+      console.log('Email notifications enabled - skipping chat notification');
+      return;
+    }
+    
     if (!socket || !walletConnected) {
       console.warn('Cannot notify server about bid: socket or wallet not connected');
       return;

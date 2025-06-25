@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useWallet } from './wallet-context'
+import { useFeatures } from './feature-context'
 import { escrowService } from '@/lib/escrow-service'
 import { toast } from 'sonner'
 
@@ -87,6 +88,7 @@ interface BiddingContextType {
   
   // New secure bidding methods
   validateWalletFunds: (amount: number) => Promise<boolean>;
+  validateWalletForBid: (amount: number) => Promise<{isValid: boolean, reason?: string}>;
   placeBidWithDeposit: (auctionId: string, amount: number, deposit: number) => Promise<boolean>;
   getDepositAmount: () => number;
   completePayment: (auctionId: string) => Promise<boolean>;
@@ -119,6 +121,7 @@ const LOCAL_STORAGE_KEY = 'artAuctionBidData';
 
 export function BiddingProvider({ children }: { children: ReactNode }) {
   const { walletAddress, isConnected } = useWallet();
+  const { features, walletSettings } = useFeatures();
   const [userBidData, setUserBidData] = useState<UserBiddingData[]>(initialUserBidData);
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [recentLevelUp, setRecentLevelUp] = useState<BiddingLevel | null>(null);
@@ -279,6 +282,12 @@ export function BiddingProvider({ children }: { children: ReactNode }) {
     if (amount > maxBid) {
       console.error(`Bid too high. Maximum bid is ${maxBid}`);
       return false;
+    }
+    
+    // Calculate royalty amount if enabled
+    let royaltyAmount = 0;
+    if (features.enableNFTRoyalties) {
+      royaltyAmount = amount * 0.05; // 5% royalty
     }
     
     try {
@@ -499,6 +508,7 @@ Timestamp: ${Date.now()}
         return false;
       }
     },
+    validateWalletForBid,
     placeBidWithDeposit: async (auctionId: string, amount: number, deposit: number) => {
       if (!isConnected) return false;
       

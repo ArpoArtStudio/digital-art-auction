@@ -137,12 +137,15 @@ export function ChatManagement() {
           </CardDescription>
           <div className="pt-2">
             <Input
-              placeholder="Search chat histories..."
+              placeholder="Search by username, date, time, wallet address, keywords, or admin status..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
+              className="max-w-lg"
               type="search"
             />
+            <div className="text-xs text-muted-foreground mt-1">
+              Search examples: "2024-06-23", "admin", "0x1234", "level 3", "hello", "14:30"
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -196,6 +199,13 @@ export function ChatManagement() {
                             <DialogDescription>
                               {chat?.messageCount} messages from {chat?.participants.size} participants
                             </DialogDescription>
+                            <div className="pt-2">
+                              <Input
+                                placeholder="Search messages in this conversation..."
+                                className="w-full"
+                                type="search"
+                              />
+                            </div>
                           </DialogHeader>
                           
                           <ScrollArea className="h-[calc(80vh-120px)] border rounded-md p-4">

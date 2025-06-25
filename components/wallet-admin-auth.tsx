@@ -29,7 +29,7 @@ export function WalletAdminAuth() {
               <Shield className="h-12 w-12 text-green-600" />
             </div>
             <CardTitle className="text-2xl">Admin Access Granted</CardTitle>
-            <CardDescription>Welcome, platform owner! You have full admin access.</CardDescription>
+            <CardDescription>Welcome, admin! You have full access to the platform.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={handleAdminAccess} className="w-full">
@@ -56,7 +56,7 @@ export function WalletAdminAuth() {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Only the platform owner wallet can access the admin panel.
+                Only registered admin wallets can access the admin panel.
               </AlertDescription>
             </Alert>
             <Button 
@@ -98,7 +98,7 @@ export function WalletAdminAuth() {
             {isLoading ? "Connecting..." : "Connect Wallet"}
           </Button>
           <div className="text-center text-sm text-muted-foreground mt-4">
-            Only the platform owner wallet can access admin features.
+            Only registered admin wallets can access admin features.
           </div>
         </CardContent>
       </Card>

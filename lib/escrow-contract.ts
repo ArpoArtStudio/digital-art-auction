@@ -96,5 +96,27 @@ export const escrowContract: EscrowContract = {
         status: BidEscrowStatus.BidLocked
       }
     ]
+  },
+
+  validateWalletHasFunds: async (walletAddress: string, amount: string) => {
+    console.log(`Validating wallet ${walletAddress} has ${amount} ETH`)
+    
+    // For demo purposes, we'll simulate checking wallet balance
+    // In a real implementation, this would:
+    // 1. Connect to the blockchain
+    // 2. Query the wallet's ETH balance
+    // 3. Compare with the required amount
+    
+    try {
+      // Simulate a successful validation for demo purposes
+      // In production, you would use ethers.js or similar to check actual balance
+      const mockWalletBalance = 5.0 // Simulate 5 ETH balance
+      const requiredAmount = parseFloat(amount)
+      
+      return mockWalletBalance >= requiredAmount
+    } catch (error) {
+      console.error("Error validating wallet funds:", error)
+      return false
+    }
   }
 }

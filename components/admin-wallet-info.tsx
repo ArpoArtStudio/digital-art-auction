@@ -58,7 +58,7 @@ export function AdminWalletInfo() {
         {isAdmin && (
           <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
             <p className="text-sm text-green-800 dark:text-green-200">
-              🎉 Welcome, platform owner! You have full administrative access to the auction platform.
+              🎉 Welcome, admin! You have full administrative access to the auction platform.
             </p>
           </div>
         )}
@@ -66,7 +66,7 @@ export function AdminWalletInfo() {
         {!isAdmin && (
           <div className="p-3 bg-amber-50 dark:bg-amber-950 rounded-lg border border-amber-200 dark:border-amber-800">
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              ⚠️ This wallet does not have admin privileges. Only the platform owner wallet can access admin features.
+              ⚠️ This wallet does not have admin privileges. Only registered admin wallets can access admin features.
             </p>
           </div>
         )}

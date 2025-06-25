@@ -239,14 +239,6 @@ export function QuickBidButton({
               <div className="flex items-start gap-2">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium">Smart Contract Security</p>
-                  <p className="text-muted-foreground">All transactions happen through our audited smart contract</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                <div className="text-sm">
                   <p className="font-medium">24-Hour Payment Window</p>
                   <p className="text-muted-foreground">You'll have 24 hours to complete payment if you win</p>
                 </div>

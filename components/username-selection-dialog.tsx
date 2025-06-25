@@ -40,8 +40,12 @@ export function UsernameSelectionDialog({ isOpen, onClose, isChangeRequest = fal
     onClose()
   }
   
-  const shortAddress = walletAddress 
-    ? `${walletAddress.substring(0, 5)}`
+  const firstFiveChars = walletAddress 
+    ? `${walletAddress.substring(0, 5)}...`
+    : ""
+    
+  const lastFiveChars = walletAddress 
+    ? `...${walletAddress.substring(walletAddress.length - 5)}`
     : ""
 
   return (
@@ -65,16 +69,16 @@ export function UsernameSelectionDialog({ isOpen, onClose, isChangeRequest = fal
             className="space-y-4"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value={DisplayNameOption.SHORT_ADDRESS} id="short" />
-              <Label htmlFor="short" className="cursor-pointer">
-                Short Address ({shortAddress})
+              <RadioGroupItem value={DisplayNameOption.FIRST_5} id="first5" />
+              <Label htmlFor="first5" className="cursor-pointer">
+                First 5 Characters ({firstFiveChars})
               </Label>
             </div>
             
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value={DisplayNameOption.FULL_ADDRESS} id="full" />
-              <Label htmlFor="full" className="cursor-pointer">
-                Full Address ({walletAddress})
+              <RadioGroupItem value={DisplayNameOption.LAST_5} id="last5" />
+              <Label htmlFor="last5" className="cursor-pointer">
+                Last 5 Characters ({lastFiveChars})
               </Label>
             </div>
             

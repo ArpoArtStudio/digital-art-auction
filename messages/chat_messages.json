@@ -198,5 +198,45 @@
     "timestamp": "2025-06-22T05:06:28.798Z",
     "bidCount": 4,
     "level": 1
+  },
+  {
+    "id": "1750671930409",
+    "walletAddress": "0xec24dcdfa7dc5dc95d18a43fb2a64a23d8e350a0",
+    "displayName": "0xec24dcdfa7dc5dc95d18a43fb2a64a23d8e350a0",
+    "text": "test",
+    "isAdmin": true,
+    "timestamp": "2025-06-23T09:45:30.409Z",
+    "bidCount": 4,
+    "level": 1
+  },
+  {
+    "id": "1750671944667",
+    "walletAddress": "0xec24dcdfa7dc5dc95d18a43fb2a64a23d8e350a0",
+    "displayName": "0xec2",
+    "text": "test",
+    "isAdmin": true,
+    "timestamp": "2025-06-23T09:45:44.667Z",
+    "bidCount": 4,
+    "level": 1
+  },
+  {
+    "id": "1750671959879",
+    "walletAddress": "0xec24dcdfa7dc5dc95d18a43fb2a64a23d8e350a0",
+    "displayName": "0xec24dcdfa7dc5dc95d18a43fb2a64a23d8e350a0",
+    "text": "test",
+    "isAdmin": true,
+    "timestamp": "2025-06-23T09:45:59.879Z",
+    "bidCount": 4,
+    "level": 1
+  },
+  {
+    "id": "1750676916141",
+    "walletAddress": "0xec24dcdfa7dc5dc95d18a43fb2a64a23d8e350a0",
+    "displayName": "0xec2...",
+    "text": "test",
+    "isAdmin": true,
+    "timestamp": "2025-06-23T11:08:36.142Z",
+    "bidCount": 4,
+    "level": 1
   }
 ]

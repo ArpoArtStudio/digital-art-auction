@@ -60,6 +60,31 @@ As an admin, you can export the entire chat history:
 2. A CSV file containing all chat messages will be downloaded
 3. The export includes: timestamp, wallet address, display name, message content, and user level
 
+## User Management
+
+### Accessing User Management
+
+1. Connect your admin wallet
+2. Navigate to `/admin/users` in the browser
+3. The User Management panel will be displayed
+
+### Username Change Requests
+
+Users can request to change how their username is displayed in the platform. As an admin, you need to review and approve these requests:
+
+1. **Viewing Requests**
+   - All pending username change requests appear in the User Management panel
+   - Each request shows the user's wallet address, current display name, and when the request was made
+
+2. **Approving Requests**
+   - Review the request details
+   - Click the green checkmark button to approve the request
+   - The user will be able to use their new username immediately
+
+3. **Rejecting Requests**
+   - If a username change request is inappropriate, click the red X button to reject it
+   - The user will continue to use their previous username
+
 ## Auction Management
 
 ### Creating New Auctions

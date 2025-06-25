@@ -11,6 +11,12 @@ export default function ArtistsPage() {
       avatarUrl: "/placeholder.svg?height=200&width=200",
       artCount: 12,
       totalSales: "45.5",
+      socialLinks: {
+        website: "https://digitalvisionary.art",
+        twitter: "https://twitter.com/digitalvisionary",
+        instagram: "https://instagram.com/digitalvisionary",
+        facebook: "https://facebook.com/digitalvisionary"
+      }
     },
     {
       id: "2",
@@ -19,6 +25,11 @@ export default function ArtistsPage() {
       avatarUrl: "/placeholder.svg?height=200&width=200",
       artCount: 8,
       totalSales: "32.2",
+      socialLinks: {
+        website: "https://pixelprophet.io",
+        twitter: "https://twitter.com/pixelprophet",
+        instagram: "https://instagram.com/pixelprophet"
+      }
     },
     {
       id: "3",
@@ -27,6 +38,12 @@ export default function ArtistsPage() {
       avatarUrl: "/placeholder.svg?height=200&width=200",
       artCount: 15,
       totalSales: "67.8",
+      socialLinks: {
+        website: "https://cryptocanvas.art",
+        twitter: "https://twitter.com/cryptocanvas",
+        instagram: "https://instagram.com/cryptocanvas",
+        facebook: "https://facebook.com/cryptocanvas"
+      }
     },
     {
       id: "4",
@@ -35,6 +52,11 @@ export default function ArtistsPage() {
       avatarUrl: "/placeholder.svg?height=200&width=200",
       artCount: 6,
       totalSales: "18.3",
+      socialLinks: {
+        website: "https://nftnomad.com",
+        twitter: "https://twitter.com/nftnomad",
+        instagram: "https://instagram.com/nftnomad"
+      }
     },
   ]
 

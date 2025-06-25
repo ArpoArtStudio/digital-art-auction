@@ -3,6 +3,8 @@ import { EnhancedDashboardStats } from "@/components/enhanced-dashboard-stats"
 import { RecentActivity } from "@/components/recent-activity"
 import { AuctionChart } from "@/components/auction-chart"
 import { AdminWalletInfo } from "@/components/admin-wallet-info"
+import { UsernameManagement } from "@/components/username-management"
+import { CustomScheduleManagement } from "@/components/custom-schedule-management"
 
 export default function AdminDashboard() {
   return (
@@ -16,6 +18,10 @@ export default function AdminDashboard() {
         <AdminWalletInfo />
 
         <EnhancedDashboardStats />
+
+        <UsernameManagement />
+
+        <CustomScheduleManagement />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <AuctionChart />

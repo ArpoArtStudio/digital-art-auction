@@ -1,25 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Clock, Users, Shield } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { CountdownTimer } from "@/components/countdown-timer"
-import { BidHistory } from "@/components/bid-history"
+import { Shield } from "lucide-react"
 import { useWallet } from "@/contexts/wallet-context"
 import { WalletFallback } from "@/components/wallet-fallback"
-import { useBiddingSystem } from "@/hooks/use-bidding-system"
-import { toast } from "sonner"
-import { SecureBiddingUi } from "@/components/secure-bidding-ui" // Import our secure bidding UI
+import { SecureBiddingUi } from "@/components/secure-bidding-ui-new" // Use our new bidding UI
+import { useSmartContractBidding } from "@/hooks/use-smart-contract-bidding" // Use our new bidding hook
 
 export default function CurrentAuction() {
-  const [bidAmount, setBidAmount] = useState("")
-  const [showBidHistory, setShowBidHistory] = useState(false)
-  const { isConnected, connectWallet } = useWallet()
-  const { placeBid, userLevel, userBidCount } = useBiddingSystem()
-
+  const { isConnected } = useWallet()
+  const [isProcessing, setIsProcessing] = useState(false)
+  
   // Placeholder auction data
   const auction = {
     id: "1",
@@ -28,45 +20,54 @@ export default function CurrentAuction() {
     description:
       "A mesmerizing exploration of digital landscapes that blur the boundaries between reality and imagination.",
     imageUrl: "/placeholder.svg?height=800&width=1200",
-    currentBid: "0.85",
-    minimumBid: "0.9",
-    bidCount: 12,
+    currentBid: 0.85,
+    tokenId: "NFT-123",
     endTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
   }
-
-  const handleBid = async () => {
-    if (!isConnected) {
-      await connectWallet()
-      return
-    }
-
-    if (!bidAmount || Number.parseFloat(bidAmount) < Number.parseFloat(auction.minimumBid)) {
-      toast.error(`Minimum bid is ${auction.minimumBid} ETH`)
-      return
-    }
-
+  
+  const { 
+    currentBid, 
+    hasBid, 
+    loadAuctionData,
+    verifyFunds,
+    placeBid,
+    isBidding
+  } = useSmartContractBidding(auction.id)
+  
+  // Load auction data when the component mounts
+  useEffect(() => {
+    loadAuctionData()
+  }, [loadAuctionData])
+  
+  // Calculate the displayed bid (use the latest from smart contract if available)
+  const displayBid = currentBid || auction.currentBid
+  
+  // Handle bid placement from the UI
+  const handlePlaceBid = async (isBidMax: boolean) => {
+    if (isProcessing) return
+    
+    setIsProcessing(true)
     try {
-      // Place the bid in the auction system
-      console.log(`Placing bid of ${bidAmount} ETH`)
-      toast.success(`Bid of ${bidAmount} ETH placed successfully! (Demo mode)`)
+      const bidAmount = isBidMax 
+        ? displayBid * 1.1  // 10% increment for max bid
+        : displayBid * 1.01 // 1% increment for min bid
+        
+      // First verify funds
+      const hasFunds = await verifyFunds(bidAmount)
+      if (!hasFunds) {
+        return false
+      }
       
-      // Update bidding level in chat system
-      const { newBidCount, newLevel, leveledUp } = placeBid();
+      // Then place the bid
+      await placeBid(bidAmount)
       
-      // Show bid count in console for demo
-      console.log(`Total bid count for user: ${newBidCount}`)
-      
-      // Update the auction UI to show the latest bid
-      auction.bidCount += 1
-      auction.currentBid = bidAmount
-      
-      setBidAmount("")
-    } catch (error) {
-      console.error("Error placing bid:", error)
-      toast.error("Failed to place bid. Please try again.")
+      // Refresh auction data
+      loadAuctionData()
+    } finally {
+      setIsProcessing(false)
     }
   }
-
+  
   if (typeof window !== "undefined" && !window.ethereum) {
     return (
       <div className="container py-8">
@@ -77,17 +78,6 @@ export default function CurrentAuction() {
   
   return (
     <div className="container py-8">
-      <div className="flex justify-end mb-4">
-        <div className="flex items-center space-x-2 bg-muted p-2 rounded-md">
-          <Shield className="h-4 w-4 mr-1" />
-          <span className="text-sm font-medium">Secure Bidding System</span>
-          <div className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-400/10 text-green-400">
-            Active
-          </div>
-        </div>
-      </div>
-      
-      {/* Secure Bidding UI */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
@@ -114,10 +104,12 @@ export default function CurrentAuction() {
         <div>
           <SecureBiddingUi
             auctionId={auction.id}
-            tokenId="NFT-123"
+            tokenId={auction.tokenId}
             artworkName={auction.title}
-            currentBid={Number(auction.currentBid)}
+            currentBid={displayBid}
             endTime={auction.endTime}
+            isEnded={false}
+            hasBid={hasBid}
           />
         </div>
       </div>

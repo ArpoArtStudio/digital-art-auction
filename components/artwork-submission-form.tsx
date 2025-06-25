@@ -9,13 +9,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Upload, AlertCircle, CheckCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Upload, AlertCircle, CheckCircle, Info } from "lucide-react"
 import { useWallet } from "@/contexts/wallet-context"
+import { useFeatures } from "@/contexts/feature-context"
 import Image from "next/image"
 
 export function ArtworkSubmissionForm() {
-  const { isConnected, walletAddress, connectWallet } = useWallet()
+  const { isConnected, walletAddress, connectWallet, isAdmin } = useWallet()
+  const { features } = useFeatures()
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -30,6 +32,9 @@ export function ArtworkSubmissionForm() {
   const [imagePreview, setImagePreview] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+  
+  // Check if user can submit artwork based on curated mode setting
+  const canSubmitArtwork = !features.enableCuratedMode || isAdmin
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -112,6 +117,29 @@ export function ArtworkSubmissionForm() {
           <Button onClick={connectWallet} className="w-full">
             Connect Wallet
           </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+  
+  // Show a message when curated mode is enabled and user is not an admin
+  if (features.enableCuratedMode && !isAdmin) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Curated Mode Enabled</CardTitle>
+          <CardDescription>
+            This platform is currently in curated mode. Only approved admin users can submit new artwork.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertTitle>Submission Restricted</AlertTitle>
+            <AlertDescription>
+              Please contact the platform administrators if you would like to have your artwork featured.
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     )

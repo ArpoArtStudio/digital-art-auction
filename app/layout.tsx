@@ -5,8 +5,11 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { WalletProvider } from "@/contexts/wallet-context"
 import { BiddingProvider } from "@/contexts/bidding-context"
 import { ChatProvider } from "@/contexts/chat-context"
+import { FeatureProvider } from "@/contexts/feature-context"
 import { Toaster } from "@/components/ui/sonner"
 import { NotificationManager } from "@/components/notification-manager"
+import { ChatButton } from "@/components/chat-button"
+import { ChatWindow } from "@/components/chat-window"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,14 +28,18 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <WalletProvider>
-            <BiddingProvider>
-              <ChatProvider>
-                {children}
-                <NotificationManager />
-              </ChatProvider>
-            </BiddingProvider>
-          </WalletProvider>
+          <FeatureProvider>
+            <WalletProvider>
+              <BiddingProvider>
+                <ChatProvider>
+                  {children}
+                  <ChatButton />
+                  <ChatWindow />
+                  <NotificationManager />
+                </ChatProvider>
+              </BiddingProvider>
+            </WalletProvider>
+          </FeatureProvider>
           <Toaster />
         </ThemeProvider>
       </body>

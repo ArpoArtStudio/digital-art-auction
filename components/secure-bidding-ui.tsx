@@ -1,18 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { BidButtons } from "./bid-buttons"
-import { BidHistory } from "./bid-history"
+import { useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { useWallet } from "@/contexts/wallet-context"
-import { useBiddingContext } from "@/contexts/bidding-context"
 import { CountdownTimer } from "./countdown-timer"
-import { formatDistanceToNow } from "date-fns"
-import { Clock, Shield, CheckCircle, AlertTriangle } from "lucide-react"
+import { BidButtons } from "./bid-buttons"
+import { BidHistory } from "./bid-history"
 import { UserAuctions } from "./user-auctions"
+import { Clock, Shield, AlertTriangle, ArrowUp, Award } from "lucide-react"
+import { toast } from "sonner"
 
 interface SecureBiddingUiProps {
   auctionId: string
@@ -33,19 +31,20 @@ export function SecureBiddingUi({
   endTime,
   isEnded = false
 }: SecureBiddingUiProps) {
-  const { isConnected, connectWallet } = useWallet()
-  const [depositAmount, setDepositAmount] = useState("0.01") // ETH
+  const { isConnected, connectWallet, walletAddress } = useWallet()
+  const [isVerifyingFunds, setIsVerifyingFunds] = useState(false)
+  const [isBidding, setIsBidding] = useState(false)
+  const [hasBid, setHasBid] = useState(false)
   
-  // Simulate fetching deposit amount from the contract
-  useEffect(() => {
-    const getDepositAmount = async () => {
-      // In production, this would call the contract
-      // For now, we'll use the fixed value
-      setDepositAmount("0.01")
-    }
-    
-    getDepositAmount()
-  }, [])
+  // Calculate minimum and maximum bids
+  const minBidAmount = currentBid * 1.01 // 1% increment
+  const maxBidAmount = currentBid * 1.10 // 10% increment
+  
+  // Verify funds in user's wallet before allowing bid
+  const verifyFunds = async (bidAmount: number): Promise<boolean> => {
+    // Mock verification for demo purposes
+    return true
+  }
   
   if (isEnded) {
     return (
@@ -53,21 +52,21 @@ export function SecureBiddingUi({
         <CardHeader>
           <CardTitle>Auction Ended</CardTitle>
           <CardDescription>
-            This auction has ended. Final price: {currentBid} ETH
+            Final price: {currentBid.toFixed(2)} ETH
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Alert>
-            <CheckCircle className="h-4 w-4" />
+            <Shield className="h-4 w-4" />
             <AlertTitle>Auction Complete</AlertTitle>
             <AlertDescription>
-              This auction has ended and the winner has been notified to complete payment.
+              {hasBid ? 
+                "You won! The NFT will be transferred to your wallet automatically." :
+                "This auction has ended. The NFT was transferred to the winning bidder."
+              }
             </AlertDescription>
           </Alert>
         </CardContent>
-        <CardFooter>
-          <BidHistory auctionId={auctionId} />
-        </CardFooter>
       </Card>
     )
   }
@@ -113,19 +112,6 @@ export function SecureBiddingUi({
             </div>
             <CountdownTimer targetDate={endTime} />
           </div>
-          
-          <Alert>
-            <Shield className="h-4 w-4" />
-            <AlertTitle>Secure Bidding System</AlertTitle>
-            <AlertDescription className="text-sm">
-              <p className="mb-2">This auction uses our secure bidding system:</p>
-              <ul className="space-y-1 list-disc pl-5">
-                <li>Place bids with just a {depositAmount} ETH deposit</li>
-                <li>Full payment only required if you win</li>
-                <li>All transactions secured by our smart contract</li>
-              </ul>
-            </AlertDescription>
-          </Alert>
           
           {!isConnected ? (
             <Button 

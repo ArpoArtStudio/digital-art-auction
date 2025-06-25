@@ -1,15 +1,16 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, useMemo } from "react"
+import { useFeatures } from "./feature-context"
 
-// Owner wallet address for admin access
-const OWNER_WALLET_ADDRESS = process.env.NEXT_PUBLIC_ADMIN_WALLET || "0xec24DCDFA7Dc5dc95D18a43FB2A64A23d8E350a0"
+// Default admin wallet address
+const DEFAULT_ADMIN_WALLET = process.env.NEXT_PUBLIC_ADMIN_WALLET || "0xec24DCDFA7Dc5dc95D18a43FB2A64A23d8E350a0"
 
 // Display name options
 export enum DisplayNameOption {
-  SHORT_ADDRESS = 'short_address', // 0x1234...5678 format
-  FULL_ADDRESS = 'full_address',   // Full wallet address
-  ENS = 'ens'                      // ENS name if available, fallback to short address
+  FIRST_5 = 'first_5',           // First 5 characters (0x123...)
+  LAST_5 = 'last_5',             // Last 5 characters (...5678)
+  ENS = 'ens'                    // ENS name if available
 }
 
 interface UsernameChangeRequest {
@@ -45,24 +46,56 @@ interface WalletContextType {
 const WalletContext = createContext<WalletContextType | undefined>(undefined)
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
+  // Note: We're not directly using useFeatures() here because the FeatureProvider might not be available yet
+  // We'll check for platform wallet settings later when they become available
   const [isConnected, setIsConnected] = useState(false)
   const [walletAddress, setWalletAddress] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [displayNameOption, setDisplayNameOption] = useState<DisplayNameOption>(
-    DisplayNameOption.SHORT_ADDRESS
+    DisplayNameOption.FIRST_5
   )
   const [ensName, setEnsName] = useState<string | null>(null)
   const [availableEnsNames, setAvailableEnsNames] = useState<string[]>([])
   const [hasSetUsername, setHasSetUsername] = useState(false)
   const [usernameChangeRequested, setUsernameChangeRequested] = useState(false)
   const [pendingUsernameRequests, setPendingUsernameRequests] = useState<UsernameChangeRequest[]>([])
+  // Store admin wallets list
+  const [adminWallets, setAdminWallets] = useState<string[]>([DEFAULT_ADMIN_WALLET])
+
+  // Load admin wallets from localStorage on mount
+  useEffect(() => {
+    const storedAdminWallets = localStorage.getItem('adminWallets')
+    if (storedAdminWallets) {
+      try {
+        const parsedWallets = JSON.parse(storedAdminWallets)
+        if (Array.isArray(parsedWallets) && parsedWallets.length > 0) {
+          setAdminWallets(parsedWallets)
+        }
+      } catch (e) {
+        console.error("Error parsing admin wallets:", e)
+        // Fall back to default admin wallet
+      }
+    }
+  }, [])
 
   // Check if wallet is already connected on mount
   useEffect(() => {
     checkWalletConnection()
   }, [])
+  
+  // Check if the connected wallet is an admin wallet when either changes
+  useEffect(() => {
+    if (walletAddress && adminWallets.length > 0) {
+      const isAdminWallet = adminWallets.some(
+        adminWallet => adminWallet.toLowerCase() === walletAddress.toLowerCase()
+      )
+      setIsAdmin(isAdminWallet)
+    } else {
+      setIsAdmin(false)
+    }
+  }, [walletAddress, adminWallets])
   
   // Try to resolve ENS name when wallet address changes
   useEffect(() => {
@@ -105,12 +138,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     
     switch (displayNameOption) {
       case DisplayNameOption.ENS:
-        return ensName || `${walletAddress.substring(0, 5)}`
-      case DisplayNameOption.FULL_ADDRESS:
-        return walletAddress
-      case DisplayNameOption.SHORT_ADDRESS:
+        return ensName || `${walletAddress.substring(0, 5)}...`
+      case DisplayNameOption.LAST_5:
+        return `...${walletAddress.substring(walletAddress.length - 5)}`
+      case DisplayNameOption.FIRST_5:
       default:
-        return `${walletAddress.substring(0, 5)}`
+        return `${walletAddress.substring(0, 5)}...`
     }
   }, [walletAddress, displayNameOption, ensName])
   
@@ -129,23 +162,30 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       const ensForAddress = mockEnsNames[address]
       if (ensForAddress) {
         if (Array.isArray(ensForAddress)) {
-          // If there are multiple ENS names, use the first one for now
-          // We'll add a UI to select between them later
-          setEnsName(ensForAddress[0])
+          // Multiple ENS names available
+          setAvailableEnsNames(ensForAddress)
           
-          // Store all ENS names in localStorage for this address
-          localStorage.setItem(`ensNames_${address}`, JSON.stringify(ensForAddress))
+          // Check if user has already selected one
+          const selectedEns = localStorage.getItem(`selectedEns_${address}`)
+          if (selectedEns && ensForAddress.includes(selectedEns)) {
+            setEnsName(selectedEns)
+          } else {
+            // No selection made yet, don't set an ENS name
+            setEnsName(null)
+          }
         } else {
+          // Single ENS name
           setEnsName(ensForAddress)
-          localStorage.setItem(`ensNames_${address}`, JSON.stringify([ensForAddress]))
+          setAvailableEnsNames([ensForAddress])
         }
       } else {
         setEnsName(null)
-        localStorage.removeItem(`ensNames_${address}`)
+        setAvailableEnsNames([])
       }
     } catch (error) {
       console.error("Error fetching ENS name:", error)
       setEnsName(null)
+      setAvailableEnsNames([])
     }
   }
 
@@ -160,7 +200,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         const address = accounts[0]
         setWalletAddress(address)
         setIsConnected(true)
-        setIsAdmin(address.toLowerCase() === OWNER_WALLET_ADDRESS.toLowerCase())
       }
     } catch (error) {
       console.error("Error checking wallet connection:", error)
@@ -188,7 +227,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         const address = accounts[0]
         setWalletAddress(address)
         setIsConnected(true)
-        setIsAdmin(address.toLowerCase() === OWNER_WALLET_ADDRESS.toLowerCase())
       }
     } catch (error: any) {
       console.error("Error connecting wallet:", error)
@@ -226,6 +264,26 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
           const pendingRequestsJson = localStorage.getItem('pendingUsernameRequests')
           if (pendingRequestsJson) {
             setPendingUsernameRequests(JSON.parse(pendingRequestsJson))
+          } else {
+            // For demo purposes, create some sample username change requests
+            const sampleRequests: UsernameChangeRequest[] = [
+              {
+                walletAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                currentName: '0x742d...',
+                requestedName: 'collector.eth',
+                requestedAt: Date.now() - 3600000, // 1 hour ago
+                approved: false
+              },
+              {
+                walletAddress: '0x983e0DAB5dC8CcE1Ca3B77fb901fE73927e8cB0f',
+                currentName: '0x983e...',
+                requestedName: 'artist.eth',
+                requestedAt: Date.now() - 86400000, // 1 day ago
+                approved: false
+              }
+            ];
+            setPendingUsernameRequests(sampleRequests);
+            localStorage.setItem('pendingUsernameRequests', JSON.stringify(sampleRequests));
           }
         }
       } catch (e) {

@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { useBiddingContext } from "@/contexts/bidding-context"
 import { useChatContext } from "@/contexts/chat-context"
 import { useWallet } from "@/contexts/wallet-context"
+import { useFeatures } from "@/contexts/feature-context"
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,7 @@ export function BidButtons() {
   
   const { isConnected, connectWallet } = useWallet()
   const { notifyBidPlaced, sendMessage } = useChatContext()
+  const { features } = useFeatures()
   const [isPlacingBid, setIsPlacingBid] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [bidType, setBidType] = useState<'min' | 'max'>('min')
@@ -190,6 +192,12 @@ export function BidButtons() {
                 <span>Initial deposit:</span>
                 <span>0.01 ETH</span>
               </div>
+              {features.enableNFTRoyalties && (
+                <div className="flex justify-between text-sm">
+                  <span>Artist royalty (5%):</span>
+                  <span>{bidType === 'min' ? (minBidAmount * 0.05).toFixed(2) : (maxBidAmount * 0.05).toFixed(2)} ETH</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm border-t border-border mt-2 pt-2">
                 <span>Required if you win:</span>
                 <span className="font-bold">
@@ -204,14 +212,6 @@ export function BidButtons() {
                 <div className="text-sm">
                   <p className="font-medium">Binding Agreement</p>
                   <p className="text-muted-foreground">Your bid is a legal commitment to purchase if you win</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium">Smart Contract Security</p>
-                  <p className="text-muted-foreground">All transactions happen through our audited smart contract</p>
                 </div>
               </div>
               
