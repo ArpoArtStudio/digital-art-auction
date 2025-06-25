@@ -1,5 +1,5 @@
 import { SiteHeader } from "@/components/site-header"
-import { EnhancedArtworkSubmissionForm } from "@/components/enhanced-artwork-submission-form"
+import { ArtworkSubmissionForm } from "@/components/artwork-submission-form"
 
 export default function SubmitArtworkPage() {
   return (
@@ -14,7 +14,7 @@ export default function SubmitArtworkPage() {
                 Join our community of artists! Complete your artist profile and submit your NFT artwork for auction on our platform
               </p>
             </div>
-            <EnhancedArtworkSubmissionForm />
+            <ArtworkSubmissionForm />
           </div>
         </div>
       </main>

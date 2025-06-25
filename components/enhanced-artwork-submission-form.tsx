@@ -25,15 +25,15 @@ export function EnhancedArtworkSubmissionForm() {
   const { isConnected, connectWallet, walletAddress } = useWallet()
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null)
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
-  const [isArtistRegistered, setIsArtistRegistered] = useState<boolean | null>(null)
+  const [artistRegistered, setArtistRegistered] = useState<boolean | null>(null)
   const [showRegistration, setShowRegistration] = useState(false)
   const [showNewSubmission, setShowNewSubmission] = useState(false)
 
   // Check if user is already registered as an artist
   useEffect(() => {
     if (isConnected && walletAddress) {
-      const isRegistered = isArtistRegistered(walletAddress)
-      setIsArtistRegistered(isRegistered)
+      const isRegistered = checkArtistRegistered(walletAddress)
+      setArtistRegistered(isRegistered)
       
       // If not registered, show registration form
       if (!isRegistered) {
@@ -49,7 +49,7 @@ export function EnhancedArtworkSubmissionForm() {
   }, [isConnected, walletAddress])
 
   const handleArtistRegistrationSuccess = (artistData: any) => {
-    setIsArtistRegistered(true)
+    setArtistRegistered(true)
     setShowRegistration(false)
     setShowNewSubmission(true) // Show submission form after registration
   }
@@ -189,15 +189,15 @@ export function EnhancedArtworkSubmissionForm() {
   }
 
   // Show artist dashboard for existing artists (unless they're making a new submission)
-  if (isConnected && isArtistRegistered && !showNewSubmission) {
+  if (isConnected && artistRegistered && !showNewSubmission) {
     return <ArtistDashboard onNewSubmission={handleNewSubmission} />
   }
 
   // Show new submission form for registered artists or after registration
-  if (isConnected && (showNewSubmission || (isArtistRegistered && !showRegistration))) {
+  if (isConnected && (showNewSubmission || (artistRegistered && !showRegistration))) {
     return (
       <div className="space-y-6">
-        {isArtistRegistered && (
+        {artistRegistered && (
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Submit New Artwork</h2>
             <button 
@@ -215,10 +215,6 @@ export function EnhancedArtworkSubmissionForm() {
             wallet.
           </AlertDescription>
         </Alert>
-          <strong>Two ways to submit:</strong> Mint a new NFT from your artwork, or select an existing NFT from your
-          wallet.
-        </AlertDescription>
-      </Alert>
 
       <Tabs defaultValue="mint" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -278,5 +274,36 @@ export function EnhancedArtworkSubmissionForm() {
         </Card>
       )}
     </div>
+    )
+  }
+
+  // Show artist registration form for first-time users
+  if (isConnected && showRegistration) {
+    return (
+      <ArtistRegistrationForm 
+        onRegistrationSuccess={handleArtistRegistrationSuccess}
+        onSkip={handleSkipRegistration}
+      />
+    )
+  }
+
+  // Show wallet connection prompt
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Submit Your Artwork</CardTitle>
+        <CardDescription>
+          Connect your wallet to submit artwork for auction
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <button
+          onClick={connectWallet}
+          className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90"
+        >
+          Connect Wallet
+        </button>
+      </CardContent>
+    </Card>
   )
 }
