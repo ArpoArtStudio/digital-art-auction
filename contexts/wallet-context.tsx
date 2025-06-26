@@ -6,7 +6,8 @@ import {
   getEthereumProvider, 
   isWalletAvailable, 
   getWalletAccounts, 
-  requestWalletConnection 
+  requestWalletConnection,
+  isMetaMaskLocked
 } from "@/lib/ethereum-provider"
 
 // Default admin wallet address
@@ -225,20 +226,39 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         throw new Error("No Ethereum wallet detected. Please install MetaMask.")
       }
 
+      // Check if MetaMask is locked
+      const isLocked = await isMetaMaskLocked();
+      if (isLocked) {
+        throw new Error("MetaMask is locked. Please unlock your wallet and try again.");
+      }
+
       const accounts = await requestWalletConnection()
 
       if (accounts.length > 0) {
         const address = accounts[0]
         setWalletAddress(address)
         setIsConnected(true)
+        setError(null) // Clear any previous errors
+      } else {
+        throw new Error("No accounts returned from wallet")
       }
     } catch (error: any) {
       console.error("Error connecting wallet:", error)
+      let errorMessage = "Failed to connect wallet"
+      
       if (error.code === 4001) {
-        setError("Wallet connection was rejected by user")
-      } else {
-        setError(error.message || "Failed to connect wallet")
+        errorMessage = "Wallet connection was rejected by user"
+      } else if (error.code === -32002) {
+        errorMessage = "Connection request already pending. Please check your wallet."
+      } else if (error.message?.includes("MetaMask is locked")) {
+        errorMessage = "MetaMask is locked. Please unlock your wallet and try again."
+      } else if (error.message?.includes("install MetaMask")) {
+        errorMessage = "No wallet detected. Please install MetaMask or another Ethereum wallet."
+      } else if (error.message) {
+        errorMessage = error.message
       }
+      
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }

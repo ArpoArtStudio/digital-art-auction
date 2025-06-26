@@ -7,10 +7,11 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { BarChart3, Users, Gavel, Settings, LogOut, Menu, Home, ImageIcon, TrendingUp, Clock, MessageSquare } from "lucide-react"
+import { BarChart3, Users, Gavel, Settings, LogOut, Menu, Home, ImageIcon, TrendingUp, Clock, MessageSquare, Calendar } from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard", icon: BarChart3 },
+  { name: "Calendar", href: "/admin/calendar", icon: Calendar },
   { name: "Queue", href: "/admin/queue", icon: Clock },
   { name: "Auctions", href: "/admin/auctions", icon: Gavel },
   { name: "Artists", href: "/admin/artists", icon: ImageIcon },

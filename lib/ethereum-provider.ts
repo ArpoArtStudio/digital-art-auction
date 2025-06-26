@@ -41,7 +41,8 @@ export function getEthereumProvider(): EthereumProvider | null {
  * Check if a wallet is available
  */
 export function isWalletAvailable(): boolean {
-  return getEthereumProvider() !== null;
+  const provider = getEthereumProvider();
+  return provider !== null;
 }
 
 /**
@@ -51,14 +52,30 @@ export async function safeEthereumRequest(method: string, params?: any[]): Promi
   const provider = getEthereumProvider();
   
   if (!provider) {
-    throw new Error("No Ethereum provider available");
+    throw new Error("No Ethereum provider available. Please install MetaMask or another wallet.");
   }
 
   try {
-    return await provider.request({ method, params });
-  } catch (error) {
+    const result = await provider.request({ method, params });
+    return result;
+  } catch (error: any) {
     console.error(`Error with ethereum request ${method}:`, error);
-    throw error;
+    
+    // Handle specific wallet error codes
+    if (error.code === 4001) {
+      throw new Error("User rejected the request");
+    } else if (error.code === -32002) {
+      throw new Error("Request already pending. Please check your wallet.");
+    } else if (error.code === -32603) {
+      throw new Error("Internal error. Please try again.");
+    } else if (error.message?.includes("User denied")) {
+      throw new Error("User denied the request");
+    } else if (error.message?.includes("MetaMask")) {
+      throw new Error("MetaMask error: " + error.message);
+    }
+    
+    // Re-throw with more context
+    throw new Error(`Wallet request failed: ${error.message || error.toString()}`);
   }
 }
 
@@ -79,9 +96,34 @@ export async function getWalletAccounts(): Promise<string[]> {
  */
 export async function requestWalletConnection(): Promise<string[]> {
   try {
+    // First check if we already have accounts (user previously connected)
+    const existingAccounts = await safeEthereumRequest("eth_accounts");
+    if (existingAccounts.length > 0) {
+      return existingAccounts;
+    }
+    
+    // No existing connection, request new connection
     return await safeEthereumRequest("eth_requestAccounts");
   } catch (error) {
     console.error("Error requesting wallet connection:", error);
     throw error;
+  }
+}
+
+/**
+ * Check if MetaMask is locked
+ */
+export async function isMetaMaskLocked(): Promise<boolean> {
+  try {
+    const provider = getEthereumProvider();
+    if (!provider || !provider.isMetaMask) {
+      return false; // Not MetaMask, so not locked
+    }
+    
+    const accounts = await provider.request({ method: "eth_accounts" });
+    return accounts.length === 0;
+  } catch (error) {
+    console.warn("Could not check MetaMask lock status:", error);
+    return true; // Assume locked if we can't check
   }
 }

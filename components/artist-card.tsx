@@ -6,6 +6,8 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useFeatures } from "@/contexts/feature-context"
 import { ExternalLink, Instagram, Twitter, Facebook, Globe } from "lucide-react"
+import { getArtistBadge } from "@/lib/artist-utils"
+import { ArtistBadge } from "@/components/artist-badge"
 
 interface Artist {
   id: string
@@ -29,6 +31,9 @@ interface ArtistCardProps {
 export function ArtistCard({ artist }: ArtistCardProps) {
   const { features } = useFeatures();
 
+  // Get badge based on artwork count (simulating submission count)
+  const badge = getArtistBadge(artist.artCount)
+
   return (
     <Card className="overflow-hidden card-responsive">
       <CardHeader className="p-0">
@@ -45,7 +50,12 @@ export function ArtistCard({ artist }: ArtistCardProps) {
         </div>
       </CardHeader>
       <CardContent className="pt-12 sm:pt-14 lg:pt-16 text-center px-4 sm:px-6">
-        <h3 className="text-lg sm:text-xl font-bold break-words">{artist.name}</h3>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <h3 className="text-lg sm:text-xl font-bold break-words">{artist.name}</h3>
+          {badge && (
+            <ArtistBadge badge={badge} size="sm" />
+          )}
+        </div>
         <p className="text-xs sm:text-sm text-muted-foreground mt-2 line-clamp-3">{artist.bio}</p>
         
         {/* Social Media Links */}

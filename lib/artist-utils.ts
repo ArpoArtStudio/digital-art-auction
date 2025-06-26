@@ -37,6 +37,54 @@ export interface ArtworkSubmission {
   queuePosition?: number
 }
 
+export interface ArtistBadge {
+  type: "blue" | "red" | "gold" | "platinum"
+  label: string
+  description: string
+  icon: string
+  glowEffect?: boolean
+}
+
+/**
+ * Get artist badge based on submission count
+ */
+export function getArtistBadge(submissionCount: number): ArtistBadge | null {
+  if (submissionCount >= 30) {
+    return {
+      type: "platinum",
+      label: "Platinum Artist",
+      description: "30+ submissions",
+      icon: "✦",
+      glowEffect: true
+    }
+  } else if (submissionCount >= 20) {
+    return {
+      type: "gold",
+      label: "Gold Artist", 
+      description: "20+ submissions",
+      icon: "★",
+      glowEffect: false
+    }
+  } else if (submissionCount >= 10) {
+    return {
+      type: "red",
+      label: "Veteran Artist",
+      description: "10+ submissions", 
+      icon: "♦",
+      glowEffect: false
+    }
+  } else if (submissionCount >= 5) {
+    return {
+      type: "blue",
+      label: "Rising Artist",
+      description: "5+ submissions",
+      icon: "✓",
+      glowEffect: false
+    }
+  }
+  return null
+}
+
 /**
  * Check if a wallet address has completed artist registration
  */
@@ -126,5 +174,28 @@ export function registerArtist(artistData: ArtistProfile): void {
     localStorage.setItem(`artistRegistered_${artistData.walletAddress}`, 'true')
   } catch (error) {
     console.error("Error registering artist:", error)
+  }
+}
+
+/**
+ * Update artist profile
+ */
+export function updateArtistProfile(walletAddress: string, updatedData: Partial<ArtistProfile>): boolean {
+  try {
+    const registeredArtists = JSON.parse(localStorage.getItem('registeredArtists') || '[]')
+    const artistIndex = registeredArtists.findIndex((artist: ArtistProfile) => artist.walletAddress === walletAddress)
+    
+    if (artistIndex === -1) {
+      return false
+    }
+    
+    // Update the artist data
+    registeredArtists[artistIndex] = { ...registeredArtists[artistIndex], ...updatedData }
+    localStorage.setItem('registeredArtists', JSON.stringify(registeredArtists))
+    
+    return true
+  } catch (error) {
+    console.error("Error updating artist profile:", error)
+    return false
   }
 }

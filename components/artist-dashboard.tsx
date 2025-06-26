@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { User, Palette, TrendingUp, Clock, CheckCircle, XCircle, Eye } from "lucide-react"
 import { useWallet } from "@/contexts/wallet-context"
-import { getArtistProfile, getArtistSubmissions, getArtistStats, ArtistProfile, ArtworkSubmission } from "@/lib/artist-utils"
+import { getArtistProfile, getArtistSubmissions, getArtistStats, getArtistBadge, ArtistProfile, ArtworkSubmission } from "@/lib/artist-utils"
+import { ArtistBadge } from "@/components/artist-badge"
 import Image from "next/image"
 
 interface ArtistDashboardProps {
@@ -59,6 +60,9 @@ export function ArtistDashboard({ onNewSubmission }: ArtistDashboardProps) {
     return null
   }
 
+  // Get artist badge
+  const badge = getArtistBadge(stats.totalSubmissions)
+
   return (
     <div className="space-y-6">
       {/* Artist Profile Header */}
@@ -79,6 +83,7 @@ export function ArtistDashboard({ onNewSubmission }: ArtistDashboardProps) {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     {artistProfile.name}
+                    {badge && <ArtistBadge badge={badge} size="sm" />}
                     {getStatusBadge(artistProfile.status)}
                   </CardTitle>
                   <CardDescription className="mt-1">
