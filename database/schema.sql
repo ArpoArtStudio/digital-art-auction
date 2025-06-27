@@ -737,4 +737,140 @@ $$ LANGUAGE plpgsql;
 
 COMMENT ON SCHEMA public IS 'Digital Art Auction Platform Database Schema - Optimized for Production';
 
+-- =============================================
+-- CALENDAR AND EVENTS SYSTEM
+-- =============================================
+
+-- Event types enum
+CREATE TYPE event_type AS ENUM (
+    'auction',
+    'exhibition', 
+    'maintenance',
+    'promotion',
+    'artist_spotlight',
+    'admin_meeting',
+    'platform_update'
+);
+
+-- Calendar events table for auction scheduling
+CREATE TABLE calendar_events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    event_type event_type NOT NULL DEFAULT 'auction',
+    start_datetime TIMESTAMPTZ NOT NULL,
+    end_datetime TIMESTAMPTZ NOT NULL,
+    all_day BOOLEAN DEFAULT FALSE,
+    
+    -- Relations
+    artwork_id UUID REFERENCES artwork_submissions(id) ON DELETE SET NULL,
+    created_by TEXT REFERENCES users(wallet_address) ON DELETE SET NULL,
+    
+    -- Metadata
+    color VARCHAR(7) DEFAULT '#3B82F6', -- Hex color for calendar display
+    location VARCHAR(255),
+    is_public BOOLEAN DEFAULT TRUE,
+    is_cancelled BOOLEAN DEFAULT FALSE,
+    recurring_rule TEXT, -- RRULE for recurring events
+    
+    -- Timestamps
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =============================================
+-- CHAT EXPORT SYSTEM (Admin Only)
+-- =============================================
+
+-- Export types and status enums
+CREATE TYPE export_type AS ENUM (
+    'full',
+    'date_range',
+    'user_specific',
+    'flagged_only',
+    'moderated_only'
+);
+
+CREATE TYPE export_status AS ENUM (
+    'pending',
+    'processing',
+    'completed',
+    'failed',
+    'expired'
+);
+
+-- Chat export requests table
+CREATE TABLE chat_exports (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    requested_by TEXT NOT NULL REFERENCES users(wallet_address) ON DELETE CASCADE,
+    export_type export_type NOT NULL DEFAULT 'full',
+    date_range_start TIMESTAMPTZ,
+    date_range_end TIMESTAMPTZ,
+    status export_status DEFAULT 'pending',
+    file_url TEXT, -- URL to exported file
+    file_size_bytes BIGINT,
+    export_format VARCHAR(10) DEFAULT 'json',
+    
+    -- Filters
+    user_filter TEXT REFERENCES users(wallet_address) ON DELETE SET NULL,
+    flagged_only BOOLEAN DEFAULT FALSE,
+    deleted_included BOOLEAN DEFAULT FALSE,
+    
+    -- Metadata
+    total_messages INTEGER,
+    processing_started_at TIMESTAMPTZ,
+    processing_completed_at TIMESTAMPTZ,
+    download_count INTEGER DEFAULT 0,
+    expires_at TIMESTAMPTZ, -- Auto-delete exported files after time
+    
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Chat export permissions (ensure only admins can export)
+CREATE OR REPLACE FUNCTION can_export_chat(user_wallet TEXT)
+RETURNS BOOLEAN AS $$
+DECLARE
+    is_admin_user BOOLEAN;
+BEGIN
+    -- Check if user is in admin_wallets table
+    SELECT EXISTS(
+        SELECT 1 FROM admin_wallets 
+        WHERE wallet_address = user_wallet AND is_active = TRUE
+    ) INTO is_admin_user;
+    
+    RETURN is_admin_user;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- RLS policies for calendar events
+ALTER TABLE calendar_events ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view public calendar events" ON calendar_events 
+  FOR SELECT USING (is_public = TRUE);
+
+CREATE POLICY "Admins can manage all calendar events" ON calendar_events 
+  FOR ALL USING (
+    current_setting('app.current_user', true) IN (
+      SELECT wallet_address FROM admin_wallets WHERE is_active = true
+    )
+  );
+
+-- RLS policies for chat exports (admin only)
+ALTER TABLE chat_exports ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Only admins can access chat exports" ON chat_exports 
+  FOR ALL USING (
+    current_setting('app.current_user', true) IN (
+      SELECT wallet_address FROM admin_wallets WHERE is_active = true
+    )
+  );
+
+-- Indexes for calendar and chat exports
+CREATE INDEX idx_calendar_events_date ON calendar_events(start_datetime);
+CREATE INDEX idx_calendar_events_type ON calendar_events(event_type);
+CREATE INDEX idx_calendar_events_artwork ON calendar_events(artwork_id);
+CREATE INDEX idx_chat_exports_status ON chat_exports(status);
+CREATE INDEX idx_chat_exports_requested_by ON chat_exports(requested_by);
+
 -- End of schema

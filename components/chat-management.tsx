@@ -27,8 +27,10 @@ import {
 } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Download, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle } from "lucide-react"
+import { Download, ChevronDown, ChevronRight, Search, Trash2, AlertTriangle, FileText } from "lucide-react"
 import { toast } from "sonner"
+import { AdminChatExport } from "./admin-chat-export"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export function ChatManagement() {
   const { messages, exportChatHistory, deleteMessage } = useChatContext()
@@ -101,53 +103,67 @@ export function ChatManagement() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
-            <span>Chat Management</span>
-            <div className="flex gap-2">
-              <Button 
-                onClick={exportSelected} 
-                disabled={selectedChats.size === 0}
-                size="sm"
-                variant="default"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export Selected
-              </Button>
-              <Button 
-                onClick={selectAll} 
-                size="sm" 
-                variant="outline"
-              >
-                Select All
-              </Button>
-              <Button 
-                onClick={clearSelections} 
-                size="sm" 
-                variant="outline"
-                disabled={selectedChats.size === 0}
-              >
-                Clear Selection
-              </Button>
-            </div>
-          </CardTitle>
-          <CardDescription>
-            View and manage chat messages across the platform
-          </CardDescription>
-          <div className="pt-2">
-            <Input
-              placeholder="Search by username, date, time, wallet address, keywords, or admin status..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-lg"
-              type="search"
-            />
-            <div className="text-xs text-muted-foreground mt-1">
-              Search examples: "2024-06-23", "admin", "0x1234", "level 3", "hello", "14:30"
-            </div>
-          </div>
-        </CardHeader>
+      <div>
+        <h1 className="text-3xl font-bold">Chat Management</h1>
+        <p className="text-muted-foreground">
+          Manage chat messages and export conversation data
+        </p>
+      </div>
+      
+      <Tabs defaultValue="messages" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="messages">Message Management</TabsTrigger>
+          <TabsTrigger value="export">Data Export</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="messages" className="space-y-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between">
+                <span>Chat Messages</span>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={exportSelected} 
+                    disabled={selectedChats.size === 0}
+                    size="sm"
+                    variant="default"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Selected
+                  </Button>
+                  <Button 
+                    onClick={selectAll} 
+                    size="sm" 
+                    variant="outline"
+                  >
+                    Select All
+                  </Button>
+                  <Button 
+                    onClick={clearSelections} 
+                    size="sm" 
+                    variant="outline"
+                    disabled={selectedChats.size === 0}
+                  >
+                    Clear Selection
+                  </Button>
+                </div>
+              </CardTitle>
+              <CardDescription>
+                View and manage chat messages across the platform
+              </CardDescription>
+              <div className="pt-2">
+                <Input
+                  placeholder="Search by username, date, time, wallet address, keywords, or admin status..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="max-w-lg"
+                  type="search"
+                />
+                <div className="text-xs text-muted-foreground mt-1">
+                  Search examples: "2024-06-23", "admin", "0x1234", "level 3", "hello", "14:30"
+                </div>
+              </div>
+            </CardHeader>
         <CardContent>
           <div className="text-sm text-muted-foreground mb-4">
             Chat messages are automatically deleted after 7 days. Using Supabase for persistent storage.
@@ -310,6 +326,12 @@ export function ChatManagement() {
           </Table>
         </CardContent>
       </Card>
+        </TabsContent>
+        
+        <TabsContent value="export" className="space-y-6">
+          <AdminChatExport />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

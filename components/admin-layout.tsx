@@ -7,7 +7,7 @@ import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { BarChart3, Users, Gavel, Settings, LogOut, Menu, Home, ImageIcon, TrendingUp, Clock, MessageSquare, Calendar } from "lucide-react"
+import { BarChart3, Users, Gavel, Settings, LogOut, Menu, Home, ImageIcon, TrendingUp, Clock, MessageSquare, Calendar, Database } from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard", icon: BarChart3 },
@@ -18,6 +18,7 @@ const navigation = [
   { name: "Users", href: "/admin/users", icon: Users },
   { name: "Chat", href: "/admin/chat", icon: MessageSquare },
   { name: "Analytics", href: "/admin/analytics", icon: TrendingUp },
+  { name: "Migration", href: "/admin/migration", icon: Database },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ]
 
